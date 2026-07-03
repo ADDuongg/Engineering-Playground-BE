@@ -1,0 +1,103 @@
+services:
+  postgres_platform:
+    image: postgres:16-alpine
+    container_name: dbplay_postgres_platform
+    environment:
+      POSTGRES_USER: platform
+      POSTGRES_PASSWORD: platform_secret
+      POSTGRES_DB: platform_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_platform_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U platform -d platform_db']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dbplay
+
+  postgres_playground:
+    image: postgres:16-alpine
+    container_name: dbplay_postgres_playground
+    environment:
+      POSTGRES_USER: playground
+      POSTGRES_PASSWORD: playground_secret
+      POSTGRES_DB: playground_db
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_playground_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U playground -d playground_db']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dbplay
+
+  redis:
+    image: redis:7-alpine
+    container_name: dbplay_redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dbplay
+
+  api:
+    build:
+      context: ..
+      dockerfile: infra/docker/api.Dockerfile
+    container_name: dbplay_api
+    env_file:
+      - ../.env
+    environment:
+      NODE_ENV: production
+      PLATFORM_DB_HOST: postgres_platform
+      PLATFORM_DB_PORT: 5432
+      PLAYGROUND_DB_HOST: postgres_playground
+      PLAYGROUND_DB_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - '3000:3000'
+    depends_on:
+      postgres_platform:
+        condition: service_healthy
+      postgres_playground:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'wget',
+          '--no-verbose',
+          '--tries=1',
+          '--spider',
+          'http://localhost:3000/api/v1/health',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - dbplay
+
+volumes:
+  postgres_platform_data:
+  postgres_playground_data:
+  redis_data:
+
+networks:
+  dbplay:
+    driver: bridge

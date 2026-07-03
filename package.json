@@ -1,0 +1,23 @@
+{
+  "name": "database-playground",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Database Playground - interactive learning platform",
+  "scripts": {
+    "dev": "pnpm --filter @db-play/api dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "test:e2e": "pnpm --filter @db-play/api test:e2e",
+    "lint": "pnpm -r lint",
+    "migration:run": "pnpm --filter @db-play/api migration:run",
+    "migration:generate": "pnpm --filter @db-play/api migration:generate",
+    "migration:revert": "pnpm --filter @db-play/api migration:revert"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@10.0.0",
+  "pnpm": {
+    "onlyBuiltDependencies": ["argon2"]
+  }
+}

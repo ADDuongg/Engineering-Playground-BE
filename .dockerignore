@@ -1,0 +1,16 @@
+node_modules
+dist
+build
+.git
+.gitignore
+.env
+.env.*
+*.md
+documents
+.vscode
+coverage
+.nyc_output
+**/*.spec.ts
+**/*.e2e-spec.ts
+test
+**/__tests__
