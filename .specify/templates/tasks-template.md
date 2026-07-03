@@ -23,11 +23,9 @@ description: "Task list template for feature implementation"
 
 **Database Playground monorepo** (default for this project):
 
-- **API**: `apps/api/src/modules/[feature]/` (controller, usecase, repository, dto)
-- **API tests**: `apps/api/src/**/*.spec.ts`, `apps/api/test/` (e2e)
-- **Web** (when present): `apps/web/src/`
-- **Shared types**: `packages/types/src/`
-- **Shared UI** (when present): `packages/ui/src/`
+- **API**: `src/modules/[feature]/` (controller, usecase, repository, dto)
+- **API tests**: `src/**/*.spec.ts`, `test/` (e2e)
+- **Shared types**: `src/shared/`
 - **Feature specs**: `specs/[###-feature-name]/`
 
 Adjust paths in generated tasks to match `plan.md` structure decision.

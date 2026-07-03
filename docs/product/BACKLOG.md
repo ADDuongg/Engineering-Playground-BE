@@ -578,7 +578,7 @@ Checklist:
 - [ ] Tested
 - [ ] Documented
 
-_Note: Backend auth module partially exists in `apps/api` — complete checklist when full scope (including web) is done._
+_Note: Backend auth module partially exists — complete checklist when full scope (including web) is done._
 
 ---
 
@@ -2139,7 +2139,7 @@ Link completed specs here for traceability (update **Spec Folder** in each featu
 
 | Feature            | Spec folder | Status                                       |
 | ------------------ | ----------- | -------------------------------------------- |
-| Authentication     | _pending_   | Backend API partial (`apps/api` auth module) |
+| Authentication     | _pending_   | Backend API partial (auth module in `src/modules/auth`) |
 | Track Registry     | _pending_   | Todo                                         |
 | _add rows as specs are created_ | | |
 

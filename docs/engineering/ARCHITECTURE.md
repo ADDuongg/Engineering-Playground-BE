@@ -49,17 +49,15 @@ Every feature should be independently maintainable.
 ```
 engineering-playground/
 
-apps/
-    web/
-    api/
-
-packages/
-    ui/
-    types/
-    sdk/
+src/
+    modules/        # NestJS feature modules
+    shared/         # DTOs, enums, API contracts
+    database/
     config/
 
-tracks/
+test/
+
+tracks/             # planned
     database/
     react-rendering/
     system-design/
@@ -74,23 +72,9 @@ scripts/
 
 ---
 
-# 4. Applications
+# 4. Backend Application
 
-## apps/web
-
-Responsible for
-
-- UI
-- Visualization
-- Input Surfaces (pluggable per Track)
-- Charts
-- Authentication
-- Learning Experience
-- Track Browser
-
----
-
-## apps/api
+## src/modules
 
 Responsible for
 
@@ -103,17 +87,9 @@ Responsible for
 
 ---
 
-# 5. Shared Packages
+# 5. Shared Contracts
 
-## packages/ui
-
-Reusable components.
-
-Must contain zero business logic.
-
----
-
-## packages/types
+## src/shared
 
 Shared DTO
 
@@ -123,19 +99,7 @@ Interfaces
 
 Schema
 
----
-
-## packages/sdk
-
-Generated API Client.
-
-Frontend never manually builds API requests.
-
----
-
-## packages/config
-
-Shared configuration.
+Imported via `@db-play/types` path alias.
 
 ---
 

@@ -10,25 +10,20 @@ The platform is organized into **Tracks** (learning domains). Each Track defines
 Track → Category → Lab → Experiment
 ```
 
-## Monorepo Structure
+## Project Structure
 
 ```
 sql-play/
-├── apps/
-│   └── api/              # NestJS backend API
-├── packages/
-│   └── types/            # Shared DTOs, enums, API contracts
-├── tracks/               # Track content definitions (planned)
-│   ├── database/         # Database / SQL Track (MVP)
-│   ├── react-rendering/  # React Rendering Track (future)
-│   ├── system-design/    # System Design Track (future)
-│   └── redis/            # Redis Track (future)
+├── src/                  # NestJS source (modules, shared contracts)
+│   └── shared/           # DTOs, enums, API contracts
+├── test/                 # E2E tests
 ├── docs/
-│   ├── product/          # PRD, ROADMAP, BACKLOG
-│   └── engineering/      # ARCHITECTURE, DOMAIN, SYSTEM_DESIGN
 ├── infra/
 │   ├── docker-compose.yml
 │   └── docker/api.Dockerfile
+├── package.json
+├── tsconfig.json
+└── nest-cli.json
 ```
 
 ## Prerequisites
@@ -70,8 +65,8 @@ pnpm migration:run
 pnpm dev
 ```
 
-API: `http://localhost:3000/api/v1`  
-Swagger: `http://localhost:3000/api/docs`
+API: `http://localhost:3001/api/v1`  
+Swagger: `http://localhost:3001/api/docs`
 
 ## Docker (full stack)
 

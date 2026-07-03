@@ -357,7 +357,7 @@ Visualization should explain behavior, not decorate UI.
 
 Each Track provides a Visualization Kit — the chart types available for its metrics.
 
-Visualization components are Track-aware but reuse shared rendering primitives from `packages/ui`.
+Visualization components are Track-aware but reuse shared rendering primitives from `ui/`.
 
 ---
 

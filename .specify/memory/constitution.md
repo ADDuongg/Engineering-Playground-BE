@@ -17,10 +17,8 @@ Sync Impact Report
 ### I. Monorepo & Shared Contracts
 
 All code lives in a single pnpm workspace. Shared API contracts, DTOs, and enums MUST
-live in `packages/types` (and future shared packages). Apps MUST NOT duplicate types
-across `apps/api` and `apps/web`. Cross-package imports MUST use workspace protocol
-(`workspace:*`). New packages require a clear, documented purpose — no
-organizational-only packages.
+live in `src/shared/`. Backend MUST NOT duplicate DTOs when a frontend is added.
+Cross-module imports use the `@db-play/types` path alias.
 
 **Rationale**: One source of truth for contracts prevents API drift between NestJS
 backend and React frontend.
@@ -117,8 +115,8 @@ in monorepos.
 |-------|-------|-------|
 | Runtime | Node.js ≥ 22 | Enforced via `package.json` engines |
 | Package manager | pnpm ≥ 10 | Workspace root scripts orchestrate apps |
-| Backend | NestJS 11, TypeORM, PostgreSQL | Feature modules under `apps/api/src/modules/` |
-| Frontend | React (planned `apps/web`) | Composable UI; shared `packages/ui`; pluggable Input Surfaces per Track |
+| Backend | NestJS 11, TypeORM, PostgreSQL | Feature modules under `src/modules/` |
+| Frontend | React (planned) | Composable UI; pluggable Input Surfaces per Track |
 | Contracts | `@db-play/types` | Single API envelope and shared DTOs |
 | Cache / queues | Redis, BullMQ (future) | Workers for heavy jobs |
 | API format | Standard envelope | `{ success, data, meta, error }` on all responses |

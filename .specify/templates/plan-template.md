@@ -42,7 +42,7 @@
 
 Reference: `.specify/memory/constitution.md` (Database Playground v1.0.0)
 
-- [ ] **Monorepo & contracts**: Shared types in `packages/types`; no duplicated DTOs
+- [ ] **Contracts**: Shared types in `src/shared/`; no duplicated DTOs
 - [ ] **Feature-first backend**: Controller → UseCase → Repository; no forbidden deps
 - [ ] **TypeScript strict**: No unjustified `any`; extends `tsconfig.base.json`
 - [ ] **Testing**: Unit + integration tests planned; E2E for critical journeys
@@ -68,7 +68,7 @@ specs/[###-feature]/
 <!--
   ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
   for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
+  real paths (e.g., web/, ui/). The delivered plan must
   not include Option labels.
 -->
 

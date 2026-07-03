@@ -10,7 +10,7 @@ loadMonorepoEnv();
 export default new DataSource({
   type: 'postgres',
   host: process.env.PLATFORM_DB_HOST ?? 'localhost',
-  port: parseInt(process.env.PLATFORM_DB_PORT ?? '5432', 10),
+  port: parseInt(process.env.PLATFORM_DB_PORT ?? '5434', 10),
   username: process.env.PLATFORM_DB_USER ?? 'platform',
   password: process.env.PLATFORM_DB_PASSWORD ?? 'platform_secret',
   database: process.env.PLATFORM_DB_NAME ?? 'platform_db',

@@ -9,6 +9,6 @@ module.exports = {
   coverageDirectory: '../coverage',
   testEnvironment: 'node',
   moduleNameMapper: {
-    '^@db-play/types$': '<rootDir>/../../../packages/types/dist',
+    '^@db-play/types$': '<rootDir>/shared',
   },
 };

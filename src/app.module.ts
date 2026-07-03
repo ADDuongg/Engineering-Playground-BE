@@ -23,10 +23,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [
-        join(process.cwd(), '../../.env'),
-        join(process.cwd(), '.env'),
-      ],
+      envFilePath: join(process.cwd(), '.env'),
       load: [configuration],
       validationSchema: envValidationSchema,
       validationOptions: {
