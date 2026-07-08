@@ -512,6 +512,10 @@ Multiple users may execute experiments simultaneously.
 
 Long-running tasks should always be delegated to background workers.
 
+SQL experiment execution may be queued under load.
+
+Rate limits apply per user, not globally.
+
 Stateless Backend.
 
 Horizontally scalable API.

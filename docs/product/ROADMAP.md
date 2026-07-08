@@ -196,7 +196,11 @@ Dataset Reset
 
 Experiment Runner
 
+SQL Execution Queue
+
 SQL Sandbox
+
+Per-User Rate Limit
 
 Metrics Pipeline
 

@@ -16,6 +16,7 @@ import { PlatformDatabaseModule } from './database/platform/platform-database.mo
 import { PlaygroundDatabaseModule } from './database/playground/playground-database.module';
 import { HealthModule } from './health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { TracksModule } from './modules/tracks/tracks.module';
 import { RedisModule } from './common/services/redis.module';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 
@@ -55,6 +56,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     HealthModule,
     RedisModule,
     AuthModule,
+    TracksModule,
   ],
   providers: [
     {

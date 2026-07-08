@@ -154,6 +154,43 @@ Checklist:
 
 ---
 
+## Feature: SQL Execution Queue
+
+Status: Todo  
+Priority: P0  
+Depends On:
+
+- Experiment Runner
+- Worker Queue Foundation
+- SQL Sandbox & Resource Limits
+
+Goal:  
+Route interactive SQL experiment execution through an async job queue so API requests stay non-blocking under concurrent load and playground connection pressure is bounded (SYSTEM_DESIGN §18, ENGINEERING_GUIDE §14).
+
+Deliverables:
+
+- Enqueue Experiment Runner jobs via BullMQ instead of synchronous handler execution
+- Job lifecycle for SQL runs: queued → running → completed → failed → cancelled
+- Per-session job deduplication (reject or replace duplicate in-flight runs for same session)
+- Configurable worker concurrency aligned with playground pool capacity
+- Poll or SSE/WebSocket endpoint for job status and results
+- Graceful degradation: optional fast-path sync execution when queue depth is low (feature-flagged)
+- Queue depth and wait-time metrics for observability
+- Timeout and cancellation propagated from sandbox limits to queued jobs
+
+Spec Folder:
+
+- _pending_
+
+Checklist:
+
+- [ ] Specification created
+- [ ] Implemented
+- [ ] Tested
+- [ ] Documented
+
+---
+
 ## Feature: Explain Runner
 
 Status: Todo  
@@ -232,8 +269,44 @@ Deliverables:
 
 - Parameterized queries only; block dangerous statements
 - Per-query timeout and resource caps
-- Rate limiting for expensive operations
+- Rate limiting for expensive operations (delegated to Per-User Rate Limit feature)
 - Structured sandbox violation errors for learners
+
+Spec Folder:
+
+- _pending_
+
+Checklist:
+
+- [ ] Specification created
+- [ ] Implemented
+- [ ] Tested
+- [ ] Documented
+
+---
+
+## Feature: Per-User Rate Limit
+
+Status: Todo  
+Priority: P0  
+Depends On:
+
+- Authentication
+- SQL Sandbox & Resource Limits
+
+Goal:  
+Replace global-only API throttling with per-user execution limits so one learner cannot exhaust shared playground capacity and fair-use policies apply per identity (PRD §20, ENGINEERING_GUIDE §12).
+
+Deliverables:
+
+- Rate limits keyed by authenticated user ID (fallback: session ID for anonymous lab access where allowed)
+- Separate limit tiers for operation types: SQL run, EXPLAIN, benchmark enqueue, dataset reset
+- Redis-backed sliding window or token bucket (shared with existing Redis infrastructure)
+- Configurable limits via environment or platform settings (e.g. 30 SQL runs/min/user, 10 EXPLAIN/min/user)
+- Structured `RATE_LIMIT_EXCEEDED` errors with retry-after guidance for learners
+- Global safety ceiling retained as backstop (not sole throttle)
+- Metrics: rate-limit hits per user, per operation type, per endpoint
+- Admin override or elevated limits for internal/test accounts (optional, feature-flagged)
 
 Spec Folder:
 
@@ -519,7 +592,7 @@ User-facing discovery, auth, progress, and lab experience across Tracks (PRD §7
 
 ## Feature: Track Registry
 
-Status: Todo  
+Status: Review  
 Priority: P0  
 Depends On:
 
@@ -537,13 +610,13 @@ Deliverables:
 
 Spec Folder:
 
-- _pending_
+- [specs/001-track-registry](../../specs/001-track-registry/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
 - [ ] Documented
 
 ---
@@ -2140,7 +2213,7 @@ Link completed specs here for traceability (update **Spec Folder** in each featu
 | Feature            | Spec folder | Status                                       |
 | ------------------ | ----------- | -------------------------------------------- |
 | Authentication     | _pending_   | Backend API partial (auth module in `src/modules/auth`) |
-| Track Registry     | _pending_   | Todo                                         |
+| Track Registry     | specs/001-track-registry | Review                              |
 | _add rows as specs are created_ | | |
 
 ---
@@ -2156,3 +2229,5 @@ Link completed specs here for traceability (update **Spec Folder** in each featu
 | 5     | Dataset Reset                 | Runtime Adapters (PostgreSQL)     |
 | 6     | Experiment Isolation          | Runtime Adapters (PostgreSQL)     |
 | 7     | Experiment Runner             | Runtime Adapters (PostgreSQL)     |
+| 8     | Per-User Rate Limit           | Runtime Adapters (PostgreSQL)     |
+| 9     | SQL Execution Queue           | Runtime Adapters (PostgreSQL)     |

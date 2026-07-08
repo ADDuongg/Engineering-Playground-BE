@@ -3,3 +3,8 @@ export * from './enums/role.enum';
 export * from './enums/error-code.enum';
 export * from './auth/auth-tokens';
 export * from './auth/user-profile';
+export * from './tracks/track-status.enum';
+export * from './tracks/runtime-adapter-type.enum';
+export * from './tracks/input-surface-type.enum';
+export * from './tracks/track-summary';
+export * from './tracks/track-detail';
