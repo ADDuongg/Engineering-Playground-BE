@@ -8,6 +8,12 @@
     "dev": "nest start --watch",
     "start": "node dist/main",
     "start:prod": "node dist/main",
+    "dev:benchmark-worker": "nest start --watch --entryFile benchmark-worker.main",
+    "start:benchmark-worker": "node dist/benchmark-worker.main",
+    "dev:dataset-reset-worker": "nest start --watch --entryFile dataset-reset-worker.main",
+    "start:dataset-reset-worker": "node dist/dataset-reset-worker.main",
+    "dev:sql-execution-worker": "nest start --watch --entryFile sql-execution-worker.main",
+    "start:sql-execution-worker": "node dist/sql-execution-worker.main",
     "lint": "eslint \"{src,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -30,6 +36,7 @@
     "@nestjs/throttler": "^6.4.0",
     "@nestjs/typeorm": "^11.0.0",
     "argon2": "^0.43.0",
+    "bullmq": "^5.79.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "dotenv": "^16.5.0",
@@ -40,6 +47,7 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.16.3",
+    "pgsql-ast-parser": "^12.0.2",
     "pino": "^9.7.0",
     "pino-http": "^10.5.0",
     "reflect-metadata": "^0.2.2",
@@ -71,6 +79,8 @@
   },
   "packageManager": "pnpm@10.0.0",
   "pnpm": {
-    "onlyBuiltDependencies": ["argon2"]
+    "onlyBuiltDependencies": [
+      "argon2"
+    ]
   }
 }

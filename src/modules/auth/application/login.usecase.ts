@@ -16,7 +16,7 @@ export class LoginUseCase {
   ) {}
 
   async execute(dto: LoginDto): Promise<AuthResponse> {
-    const user = await this.userRepository.findByEmail(dto.email);
+    const user = await this.userRepository.findByEmail(dto.email.toLowerCase());
 
     if (!user) {
       throw new DomainError(

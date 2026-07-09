@@ -1,0 +1,125 @@
+{
+  "families": [
+    {
+      "id": "commerce",
+      "label": "Commerce Baseline",
+      "description": "E-commerce dataset with users, products, orders, payments, and activity logs for SQL learning labs.",
+      "versions": [
+        {
+          "id": "v1",
+          "schemaPath": "commerce/v1/schema.sql",
+          "tiers": [
+            {
+              "id": "100k",
+              "seedPath": "commerce/v1/seed-100k.sql",
+              "tables": [
+                {
+                  "name": "users",
+                  "label": "Users",
+                  "description": "Registered customers who place orders on the platform. Includes a low-cardinality status column (active, inactive, suspended, pending) for index and bitmap scan labs.",
+                  "targetRowCount": 10000
+                },
+                {
+                  "name": "products",
+                  "label": "Products",
+                  "description": "Catalog items available for purchase.",
+                  "targetRowCount": 5000
+                },
+                {
+                  "name": "orders",
+                  "label": "Orders",
+                  "description": "Purchase orders linking users to products — primary table for pagination and index labs.",
+                  "targetRowCount": 50000
+                },
+                {
+                  "name": "payments",
+                  "label": "Payments",
+                  "description": "Payment records associated with completed orders.",
+                  "targetRowCount": 50000
+                },
+                {
+                  "name": "logs",
+                  "label": "Activity Logs",
+                  "description": "User activity events such as page views and actions.",
+                  "targetRowCount": 100000
+                }
+              ]
+            },
+            {
+              "id": "1m",
+              "seedPath": "commerce/v1/seed-1m.sql",
+              "tables": [
+                {
+                  "name": "users",
+                  "label": "Users",
+                  "description": "Registered customers who place orders on the platform. Includes a low-cardinality status column (active, inactive, suspended, pending) for index and bitmap scan labs.",
+                  "targetRowCount": 100000
+                },
+                {
+                  "name": "products",
+                  "label": "Products",
+                  "description": "Catalog items available for purchase.",
+                  "targetRowCount": 50000
+                },
+                {
+                  "name": "orders",
+                  "label": "Orders",
+                  "description": "Purchase orders linking users to products — primary table for pagination and index labs.",
+                  "targetRowCount": 500000
+                },
+                {
+                  "name": "payments",
+                  "label": "Payments",
+                  "description": "Payment records associated with completed orders.",
+                  "targetRowCount": 500000
+                },
+                {
+                  "name": "logs",
+                  "label": "Activity Logs",
+                  "description": "User activity events such as page views and actions.",
+                  "targetRowCount": 1000000
+                }
+              ]
+            },
+            {
+              "id": "10m",
+              "seedPath": "commerce/v1/seed-10m.sql",
+              "tables": [
+                {
+                  "name": "users",
+                  "label": "Users",
+                  "description": "Registered customers who place orders on the platform. Includes a low-cardinality status column (active, inactive, suspended, pending) for index and bitmap scan labs.",
+                  "targetRowCount": 1000000
+                },
+                {
+                  "name": "products",
+                  "label": "Products",
+                  "description": "Catalog items available for purchase.",
+                  "targetRowCount": 500000
+                },
+                {
+                  "name": "orders",
+                  "label": "Orders",
+                  "description": "Purchase orders linking users to products — primary table for pagination and index labs.",
+                  "targetRowCount": 5000000
+                },
+                {
+                  "name": "payments",
+                  "label": "Payments",
+                  "description": "Payment records associated with completed orders.",
+                  "targetRowCount": 5000000
+                },
+                {
+                  "name": "logs",
+                  "label": "Activity Logs",
+                  "description": "User activity events such as page views and actions.",
+                  "targetRowCount": 10000000
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

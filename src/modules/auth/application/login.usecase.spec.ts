@@ -66,6 +66,18 @@ describe('LoginUseCase', () => {
     expect(result.user.email).toBe('test@example.com');
     expect(result.tokens.accessToken).toBe('access-token');
     expect(tokenService.generateTokens).toHaveBeenCalledWith(mockUser);
+    expect(userRepository.findByEmail).toHaveBeenCalledWith('test@example.com');
+  });
+
+  it('should normalize email to lowercase before lookup', async () => {
+    userRepository.findByEmail.mockResolvedValue(mockUser);
+
+    await useCase.execute({
+      email: 'Test@Example.COM',
+      password: 'password123',
+    });
+
+    expect(userRepository.findByEmail).toHaveBeenCalledWith('test@example.com');
   });
 
   it('should throw when user not found', async () => {

@@ -65,6 +65,14 @@ pnpm migration:run
 pnpm dev
 ```
 
+### 6. Start background workers (optional)
+
+```bash
+pnpm dev:benchmark-worker      # load-test labs (requires k6 on PATH)
+pnpm dev:dataset-reset-worker  # async dataset reset
+pnpm dev:sql-execution-worker  # async interactive SQL runs
+```
+
 API: `http://localhost:3001/api/v1`  
 Swagger: `http://localhost:3001/api/docs`
 
@@ -107,22 +115,43 @@ All API responses follow the standard envelope:
   - Database Track → Playground PostgreSQL
   - Redis Track → Playground Redis (future)
   - React Rendering Track → Headless React sandbox (future)
-- **Redis**: cache & future BullMQ queues
+- **Redis**: cache, rate limits, and BullMQ job queues
+- **Worker Queue Foundation**: shared job status (`GET /jobs/:jobId`), per-type queues, retry/dead-letter
+- **Benchmark Runner**: async k6 via `pnpm dev:benchmark-worker`
+- **Dataset Reset**: always async via `pnpm dev:dataset-reset-worker`
+- **SQL Execution Queue**: interactive SQL runs async via `pnpm dev:sql-execution-worker` (`POST /experiments/sql/runs` → poll `GET /jobs/:jobId`)
 
 ## Scripts
 
 ```bash
-pnpm dev              # Start API in watch mode
-pnpm build            # Build all packages
-pnpm test             # Run unit tests
-pnpm test:e2e         # Run e2e tests
-pnpm migration:run    # Run platform DB migrations
+pnpm dev                       # Start API in watch mode
+pnpm dev:benchmark-worker      # Benchmark BullMQ worker (requires k6)
+pnpm dev:dataset-reset-worker  # Dataset reset BullMQ worker
+pnpm dev:sql-execution-worker  # SQL execution BullMQ worker
+pnpm build                     # Build all packages
+pnpm test                      # Run unit tests
+pnpm test:e2e                  # Run e2e tests
+pnpm migration:run             # Run platform DB migrations
 pnpm migration:generate -- <name>  # Generate new migration
 ```
+
+## Jobs / Benchmark API
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/v1/jobs/:jobId` | Bearer | Poll any foundation job status |
+| POST | `/api/v1/benchmarks` | Bearer | Enqueue benchmark (`jobId` immediately) |
+| GET | `/api/v1/benchmarks/:jobId` | Bearer | Compatibility status (prefer `/jobs/:jobId`) |
+| GET | `/api/v1/benchmarks/:jobId/progress` | Bearer / session | SSE live progress (push-only; not JSON envelope) |
+| POST | `/api/v1/datasets/reset` | Bearer | Enqueue dataset reset (`202` + `jobId`) |
+
+Optional env: `BENCHMARK_PROGRESS_INTERVAL_MS` (default `1000`), `BENCHMARK_PROGRESS_TTL_SECONDS` (default `86400`).
+
+See `specs/012-worker-queue-foundation/quickstart.md` and `specs/015-realtime-progress/quickstart.md` for end-to-end verification.
 
 ## Development Notes
 
 - Metrics always originate from Backend (never computed in Frontend)
 - Runtime state is disposable per Track; platform data is permanent
-- Heavy tasks (benchmark, dataset reset) will use BullMQ workers (future epic)
+- Heavy work (benchmark, dataset reset) runs on BullMQ workers; HTTP handlers never wait for completion
 - Adding a new Track requires only a Runtime Adapter, Input Surface, Metric Catalog, and Visualization Kit

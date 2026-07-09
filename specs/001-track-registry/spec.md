@@ -4,7 +4,7 @@
 
 **Created**: 2026-07-08
 
-**Status**: Draft
+**Status**: Done
 
 **Input**: User description: "Define and store Track metadata on Platform DB so labs, browsers, and runners resolve the correct Runtime Adapter, Input Surface, Metric Catalog, and Visualization Kit."
 

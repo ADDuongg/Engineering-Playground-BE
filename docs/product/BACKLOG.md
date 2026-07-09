@@ -1,10 +1,12 @@
 # BACKLOG
 
-Version: 1.3
+Version: 1.5
 
 Status: Active
 
 Sources: [PRD.md](./PRD.md) · [ROADMAP.md](./ROADMAP.md) · [DOMAIN.md](../engineering/DOMAIN.md) · [SYSTEM_DESIGN.md](../engineering/SYSTEM_DESIGN.md) · [ARCHITECTURE.md](../engineering/ARCHITECTURE.md) · [ENGINEERING_GUIDE.md](../engineering/ENGINEERING_GUIDE.md)
+
+**Scope**: This backlog is **backend-only** (NestJS API, workers, Platform DB, playground runtimes). Frontend UI (landing, browsers, Lab Shell, charts, admin dashboards) is owned by a separate FE team and is **out of scope** here. Backend features expose APIs and contracts the FE consumes — including **admin content APIs** (PRD §23 out-of-scope is UI dashboards, not admin write APIs).
 
 ---
 
@@ -14,14 +16,14 @@ Content is organized as **Track → Category → Lab → Experiment**.
 
 | Level | Role |
 | ----- | ---- |
-| **Track** | Learning domain — **Phase 1:** Database/SQL · **Phase 2:** Caching & Concurrency · **Phase 4:** Frontend Performance |
-| **Category** | Group within a Track (indexes, cache patterns, memoization, …) |
+| **Track** | Learning domain — **Phase 1:** Database/SQL · **Phase 2:** Caching & Concurrency |
+| **Category** | Group within a Track (indexes, cache patterns, …) |
 | **Lab** | Smallest learning unit; teaches one concept |
-| **Experiment** | Input → Runtime Adapter → Metric Contract → Visualization |
+| **Experiment** | Input → Runtime Adapter → Metric Contract → (FE visualization) |
 
-Each Track declares a **Runtime Adapter**, **Input Surface**, **Metric Catalog**, and **Visualization Kit**. The Lab Shell layout is shared; panel content is Track-specific.
+Each Track declares a **Runtime Adapter**, **Input Surface**, **Metric Catalog**, and **Visualization Kit** (metadata for FE). Backend owns adapters, metrics, and lab APIs.
 
-Active backlog covers **Phase 1, 2, and 4** only. MVP ships **Phase 1 — Database / SQL** first.
+Active backlog covers **Phase 1 and 2** only. MVP ships **Phase 1 — Database / SQL** first. Phase 4 (Frontend Performance Track) is out of scope for this BE backlog.
 
 ---
 
@@ -33,11 +35,11 @@ Active backlog covers **Phase 1, 2, and 4** only. MVP ships **Phase 1 — Databa
 4. Continue workflow: `/speckit-clarify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement`.
 5. Complete the feature **Checklist** and verify [Definition of Done](../../.specify/memory/constitution.md).
 
-**Phase completion**: all features **Done** for the Phase's Track(s) + labs documented + Runtime Adapter verified + tests passing + performance verified (ROADMAP §14).
+**Phase completion**: all features **Done** for the Phase's Track(s) + lab APIs documented + Runtime Adapter verified + tests passing + performance verified (ROADMAP §14).
 
-**MVP target** (ROADMAP §4–5): **Phase 1 — Database / SQL** — P0/P1 through Benchmark Lab + Learning Platform + Index / EXPLAIN / Offset labs.
+**MVP target** (ROADMAP §4–5): **Phase 1 — Database / SQL** — P0/P1 through Benchmark Lab APIs + Learning Platform APIs + **Admin / Content Ops** (so later labs are content-driven) + Index / EXPLAIN / Offset lab backends.
 
-**In-scope phases**: 1 (Database), 2 (Caching), 4 (Frontend). Phases 3, 5, 6 and Future epics are out of scope for this backlog.
+**In-scope phases**: 1 (Database), 2 (Caching). Phases 3, 4, 5, 6 and Future epics are out of scope for this backlog.
 
 **Priority legend**
 
@@ -62,7 +64,7 @@ Core experiment execution via Playground PostgreSQL Runtime Adapter (SYSTEM_DESI
 
 ## Feature: Dataset Loader
 
-Status: Todo  
+Status: Done  
 Priority: P0  
 Depends On:
 
@@ -80,20 +82,20 @@ Deliverables:
 
 Spec Folder:
 
-- _pending_
+- [specs/003-dataset-loader](../../specs/003-dataset-loader/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
 
 ---
 
 ## Feature: Dataset Reset
 
-Status: Todo  
+Status: Done  
 Priority: P0  
 Depends On:
 
@@ -111,20 +113,20 @@ Deliverables:
 
 Spec Folder:
 
-- _pending_
+- [specs/004-dataset-reset](../../specs/004-dataset-reset/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
 
 ---
 
 ## Feature: Experiment Runner
 
-Status: Todo  
+Status: Done  
 Priority: P0  
 Depends On:
 
@@ -143,20 +145,20 @@ Deliverables:
 
 Spec Folder:
 
-- _pending_
+- [specs/005-experiment-runner](../../specs/005-experiment-runner/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
 
 ---
 
 ## Feature: SQL Execution Queue
 
-Status: Todo  
+Status: Done  
 Priority: P0  
 Depends On:
 
@@ -169,31 +171,31 @@ Route interactive SQL experiment execution through an async job queue so API req
 
 Deliverables:
 
-- Enqueue Experiment Runner jobs via BullMQ instead of synchronous handler execution
+- Enqueue Experiment Runner jobs via BullMQ instead of synchronous handler execution (`POST /experiments/sql/runs`)
 - Job lifecycle for SQL runs: queued → running → completed → failed → cancelled
-- Per-session job deduplication (reject or replace duplicate in-flight runs for same session)
+- Per-session job deduplication (reject duplicate in-flight runs for same session)
 - Configurable worker concurrency aligned with playground pool capacity
-- Poll or SSE/WebSocket endpoint for job status and results
-- Graceful degradation: optional fast-path sync execution when queue depth is low (feature-flagged)
+- Completed results (rows + metrics) embedded in the shared job-status payload (`GET /jobs/:jobId`)
 - Queue depth and wait-time metrics for observability
 - Timeout and cancellation propagated from sandbox limits to queued jobs
+- Fast-path sync execution deferred (out of scope for this feature)
 
 Spec Folder:
 
-- _pending_
+- [specs/013-sql-execution-queue](../../specs/013-sql-execution-queue/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
 
 ---
 
 ## Feature: Explain Runner
 
-Status: Todo  
+Status: Done  
 Priority: P0  
 Depends On:
 
@@ -211,20 +213,20 @@ Deliverables:
 
 Spec Folder:
 
-- _pending_
+- [specs/007-explain-runner](../../specs/007-explain-runner/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
 
 ---
 
 ## Feature: Metrics Pipeline
 
-Status: Todo  
+Status: Done  
 Priority: P0  
 Depends On:
 
@@ -243,20 +245,20 @@ Deliverables:
 
 Spec Folder:
 
-- _pending_
+- [specs/008-metrics-pipeline](../../specs/008-metrics-pipeline/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
 
 ---
 
 ## Feature: SQL Sandbox & Resource Limits
 
-Status: Todo  
+Status: Done  
 Priority: P0  
 Depends On:
 
@@ -274,20 +276,20 @@ Deliverables:
 
 Spec Folder:
 
-- _pending_
+- [specs/002-sql-sandbox](../../specs/002-sql-sandbox/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
 
 ---
 
 ## Feature: Per-User Rate Limit
 
-Status: Todo  
+Status: Done  
 Priority: P0  
 Depends On:
 
@@ -310,20 +312,20 @@ Deliverables:
 
 Spec Folder:
 
-- _pending_
+- [specs/010-per-user-rate-limit](../../specs/010-per-user-rate-limit/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
 
 ---
 
 ## Feature: Experiment Isolation
 
-Status: Todo  
+Status: Done  
 Priority: P0  
 Depends On:
 
@@ -343,14 +345,14 @@ Deliverables:
 
 Spec Folder:
 
-- _pending_
+- [specs/006-experiment-isolation](../../specs/006-experiment-isolation/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
 
 ---
 
@@ -362,7 +364,7 @@ Async load-test execution separate from HTTP request path (SYSTEM_DESIGN §Bench
 
 ## Feature: Benchmark Runner
 
-Status: Todo  
+Status: Done  
 Priority: P0  
 Depends On:
 
@@ -381,20 +383,20 @@ Deliverables:
 
 Spec Folder:
 
-- _pending_
+- [specs/011-benchmark-runner](../../specs/011-benchmark-runner/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
 
 ---
 
 ## Feature: Benchmark Metrics
 
-Status: Todo  
+Status: Done  
 Priority: P1  
 Depends On:
 
@@ -407,32 +409,32 @@ Deliverables:
 
 - Latency, P95, P99, RPS, throughput, error rate aggregates
 - Store benchmark results for history and comparison
-- Backend-owned metrics API for charts
+- Backend-owned metrics API for FE charts
 - Consistent metric units across all benchmark labs
 
 Spec Folder:
 
-- _pending_
+- [specs/014-benchmark-metrics](../../specs/014-benchmark-metrics/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
 
 ---
 
 ## Feature: Realtime Progress
 
-Status: Todo  
+Status: Done  
 Priority: P2  
 Depends On:
 
 - Benchmark Runner
 
 Goal:  
-Stream benchmark progress to the UI while long-running load tests execute.
+Stream benchmark progress (SSE/API) for FE clients while long-running load tests execute.
 
 Deliverables:
 
@@ -443,14 +445,14 @@ Deliverables:
 
 Spec Folder:
 
-- _pending_
+- [specs/015-realtime-progress](../../specs/015-realtime-progress/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
 
 ---
 
@@ -586,13 +588,13 @@ Checklist:
 
 ## Epic: Learning Platform
 
-User-facing discovery, auth, progress, and lab experience across Tracks (PRD §7, §10, ROADMAP §Platform Foundation / Learning System).
+Backend APIs for auth, Track/lab catalog metadata, progress, and quizzes across Tracks (PRD §7, §10, ROADMAP §Platform Foundation / Learning System). UI discovery surfaces are FE-owned. Admin write APIs live in **Admin / Content Ops** below.
 
 ---
 
 ## Feature: Track Registry
 
-Status: Review  
+Status: Done  
 Priority: P0  
 Depends On:
 
@@ -617,13 +619,13 @@ Checklist:
 - [x] Specification created
 - [x] Implemented
 - [x] Tested
-- [ ] Documented
+- [x] Documented
 
 ---
 
 ## Feature: Authentication
 
-Status: Todo  
+Status: Done  
 Priority: P0  
 Depends On:
 
@@ -642,246 +644,52 @@ Deliverables:
 
 Spec Folder:
 
-- _pending_
+- [specs/009-authentication](../../specs/009-authentication/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
-
-_Note: Backend auth module partially exists — complete checklist when full scope (including web) is done._
-
----
-
-## Feature: Landing Page
-
-Status: Todo  
-Priority: P1  
-Depends On:
-
-- Authentication
-
-Goal:  
-Introduce the platform value proposition and route users into Tracks and labs (ROADMAP §Platform Foundation).
-
-Deliverables:
-
-- Hero, learning philosophy, and MVP Track highlights (Database / SQL)
-- Clear CTA to browse Tracks or sign in
-- Responsive layout with accessibility baseline (PRD §21)
-- No installation messaging — experiments run in browser
-
-Spec Folder:
-
-- _pending_
-
-Checklist:
-
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
-
----
-
-## Feature: Track Browser
-
-Status: Todo  
-Priority: P1  
-Depends On:
-
-- Authentication
-- Track Registry
-- Landing Page
-
-Goal:  
-Let users discover learning domains (Tracks) before drilling into labs (ROADMAP §Track Browser).
-
-Deliverables:
-
-- List available Tracks with name, description, lab count, and status
-- Coming-soon state for Phase 2 (Caching) and Phase 4 (Frontend) Tracks
-- Navigation to Lab Browser filtered by selected Track
-- Empty and loading states
-
-Spec Folder:
-
-- _pending_
-
-Checklist:
-
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
-
----
-
-## Feature: Lab Browser
-
-Status: Todo  
-Priority: P1  
-Depends On:
-
-- Authentication
-- Track Registry
-- Track Browser
-- Landing Page
-
-Goal:  
-Let users discover and open labs from a catalog within a Track (ROADMAP §Lab Browser).
-
-Deliverables:
-
-- List labs for selected Track with title, difficulty, category, and learning goal summary
-- Filter entry points for category and difficulty (basic)
-- Empty and loading states
-- Navigation to Lab Detail Page
-
-Spec Folder:
-
-- _pending_
-
-Checklist:
-
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
-
----
-
-## Feature: Lab Detail Page
-
-Status: Todo  
-Priority: P1  
-Depends On:
-
-- Lab Browser
-
-Goal:  
-Present lab overview, learning objective, and entry into the lab shell before experimentation (PRD §7 user journey).
-
-Deliverables:
-
-- Lab description, learning goal, and prerequisites
-- Estimated duration and difficulty badge
-- Start lab / resume progress actions
-- Link from browser without entering shell prematurely
-
-Spec Folder:
-
-- _pending_
-
-Checklist:
-
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
-
----
-
-## Feature: Lab Search, Categories & Difficulty
-
-Status: Todo  
-Priority: P2  
-Depends On:
-
-- Lab Browser
-
-Goal:  
-Improve lab discovery via search, categories, and difficulty levels within a Track (ROADMAP §Platform Foundation, PRD §15).
-
-Deliverables:
-
-- Full-text or faceted search across lab catalog (scoped to Track)
-- Category taxonomy per Track (e.g. Database: indexes, plans, pagination)
-- Difficulty labels: Beginner → Expert
-- Search results integrated with Lab Browser
-
-Spec Folder:
-
-- _pending_
-
-Checklist:
-
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
-
----
-
-## Feature: Bookmarks
-
-Status: Todo  
-Priority: P2  
-Depends On:
-
-- Authentication
-- Lab Browser
-
-Goal:  
-Allow users to save labs for later (ROADMAP §Bookmarks, PRD §16).
-
-Deliverables:
-
-- Bookmark add/remove per lab
-- Bookmarks list on profile or browser
-- Persist bookmarks on Platform DB
-- Sync bookmarks across sessions
-
-Spec Folder:
-
-- _pending_
-
-Checklist:
-
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
 
 ---
 
 ## Feature: Progress Tracking
 
-Status: Todo  
+Status: Done  
 Priority: P1  
 Depends On:
 
 - Authentication
-- Lab Browser
 
 Goal:  
-Track completed labs and learning path progress per Track (ROADMAP §Progress, PRD §16).
+Track completed labs and learning path progress per Track via Platform APIs (ROADMAP §Progress, PRD §16).
 
 Deliverables:
 
-- Completed labs registry per user
-- Learning path / sequence visibility within each Track
-- Progress surfaced on Track Browser, Lab Browser, and Detail Page
+- Completed labs registry per user on Platform DB
+- Learning path / sequence API within each Track
+- Progress read APIs for FE catalog and detail surfaces
 - Events emitted on lab completion (ENGINEERING_GUIDE §16)
 
 Spec Folder:
 
-- _pending_
+- [specs/016-progress-tracking](../../specs/016-progress-tracking/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
+
 
 ---
 
 ## Feature: Quiz Engine
 
-Status: Todo  
+Status: Done  
 Priority: P1  
 Depends On:
 
@@ -899,6 +707,47 @@ Deliverables:
 
 Spec Folder:
 
+- [specs/017-quiz-engine](../../specs/017-quiz-engine/)
+
+Checklist:
+
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
+
+Notes:
+
+- Learner-facing quiz APIs only; admin create/update of quiz definitions is **Quiz Admin CRUD**
+
+---
+
+## Epic: Admin / Content Ops
+
+Backend admin APIs so operators manage Tracks, Labs, guided lab flows, quizzes, and users without redeploying seed/hardcoded content. FE admin UI is out of scope (PRD §23). Prefer `/api/v1/admin/*` + `Role.ADMIN`. Do this **before** additional Database Track Labs so Explain / Offset content can be authored via APIs.
+
+---
+
+## Feature: Admin AuthZ
+
+Status: Todo  
+Priority: P1  
+Depends On:
+
+- Authentication
+
+Goal:  
+Enforce admin-only access for content and user management APIs using the existing `Role.ADMIN` claim (no separate admin identity system in MVP).
+
+Deliverables:
+
+- Admin role guard / decorator reusable across admin controllers
+- Reject non-admin callers with a clear forbidden response on `/api/v1/admin/*`
+- Document how to promote a user to admin in local/dev (seed or one-off SQL; full User Admin may follow)
+- Do not expose admin capabilities on learner routes
+
+Spec Folder:
+
 - _pending_
 
 Checklist:
@@ -910,28 +759,123 @@ Checklist:
 
 ---
 
-## Feature: Lab Shell
+## Feature: Track & Lab Admin CRUD
 
 Status: Todo  
 Priority: P1  
 Depends On:
 
-- Lab Detail Page
-- Experiment Runner
-- Metrics Pipeline
+- Admin AuthZ
+- Track Registry
+- Progress Tracking
 
 Goal:  
-Provide the standard four-panel Lab Shell with Track-specific panel content (PRD §10, ROADMAP §Learning System).
+Let admins create and update Track and Lab catalog metadata on Platform DB so new labs can be registered without migration-only seeds.
 
 Deliverables:
 
-- Left panel: theory content
-- Middle panel: **Input Surface** (pluggable per Track)
-  - Database Track → SQL editor with run actions
-  - Future Tracks → component sandbox, config form, diagram builder, etc.
-- Right panel: visualization from backend metrics (Track Visualization Kit)
-- Bottom panel: metrics display (Track Metric Catalog)
-- Consistent shell reused by all labs; only panel plugins change per Track
+- Admin CRUD (or create/update/list) for Tracks: slug, name, description, status, display order, runtime/input/metric/viz config
+- Admin CRUD for Labs under a Track: slug, title, description, sequence order, active/coming-soon (or equivalent)
+- Validation: unique slugs, stable ordering, no playground DB writes
+- Learner list/detail APIs continue to read the same Platform tables
+
+Spec Folder:
+
+- _pending_
+
+Checklist:
+
+- [ ] Specification created
+- [ ] Implemented
+- [ ] Tested
+- [ ] Documented
+
+---
+
+## Feature: Lab Flow Admin
+
+Status: Todo  
+Priority: P1  
+Depends On:
+
+- Admin AuthZ
+- Track & Lab Admin CRUD
+- Index Playground
+
+Goal:  
+Persist and manage ordered guided steps per lab (e.g. Index Playground: run SQL → explain → create index → re-run → quiz) so lab summary is content-driven instead of hardcoded TypeScript.
+
+Deliverables:
+
+- Platform DB model for lab guided steps: order, title, instruction, action type, optional payload (recommended SQL/DDL/params as JSON)
+- Admin CRUD + reorder for steps scoped to a lab
+- Migrate Index Playground content from in-repo `lab-summary.content` into Platform DB (seed once; thereafter admin-editable)
+- Learner `GET /labs/:labSlug/summary` reads steps from DB (same response shape; no FE contract break if possible)
+
+Spec Folder:
+
+- _pending_
+
+Checklist:
+
+- [ ] Specification created
+- [ ] Implemented
+- [ ] Tested
+- [ ] Documented
+
+---
+
+## Feature: Quiz Admin CRUD
+
+Status: Todo  
+Priority: P1  
+Depends On:
+
+- Admin AuthZ
+- Quiz Engine
+- Track & Lab Admin CRUD
+
+Goal:  
+Let admins manage per-lab quiz definitions (questions, options, correct answers, ordering) without new migrations for each lab.
+
+Deliverables:
+
+- Admin APIs to create/update/delete quiz, questions, and options for a lab
+- Correct-answer flags writable only on admin APIs; never returned on learner definition APIs
+- Reorder questions/options; validate exactly one correct option per single-select question
+- Existing submit/grade/progress gating behavior unchanged
+
+Spec Folder:
+
+- _pending_
+
+Checklist:
+
+- [ ] Specification created
+- [ ] Implemented
+- [ ] Tested
+- [ ] Documented
+
+---
+
+## Feature: User Admin
+
+Status: Todo  
+Priority: P1  
+Depends On:
+
+- Admin AuthZ
+- Authentication
+
+Goal:  
+Let admins list users and manage role (and light account controls) so operators can grant `admin` and support learners without direct DB access.
+
+Deliverables:
+
+- Admin list/search users (pagination; no password hashes or refresh tokens in responses)
+- Update user role (`user` ↔ `admin`) with guardrails (cannot remove last admin — clarify in spec)
+- Optional MVP: soft-disable / reactivate account if product needs it; ban/delete deferred if not required
+- Audit-friendly responses (who changed what) — full Audit Log feature may come later
 
 Spec Folder:
 
@@ -948,13 +892,13 @@ Checklist:
 
 ## Epic: Database Track Labs
 
-Hands-on labs in the Database / SQL Track; each teaches one measurable concept (DOMAIN §Lab, ROADMAP §Phase 1).
+Hands-on labs in the Database / SQL Track; each teaches one measurable concept (DOMAIN §Lab, ROADMAP §Phase 1). Prefer authoring lab summary, guided steps, and quizzes via **Admin / Content Ops** once those features are Done.
 
 ---
 
 ## Feature: Index Playground
 
-Status: Todo  
+Status: Done  
 Priority: P1  
 Depends On:
 
@@ -962,7 +906,6 @@ Depends On:
 - Experiment Runner
 - Explain Runner
 - Metrics Pipeline
-- Lab Shell
 
 Goal:  
 Teach B-Tree index impact through before/after experiments (ROADMAP §Index Lab, PRD §Lab 1).
@@ -972,19 +915,26 @@ Deliverables:
 - Run queries with and without indexes
 - Create/drop index actions within sandbox
 - Explain analyze and benchmark integration
-- Visualization of scan type and row counts
-- Lab quiz and summary
+- Metrics payload: scan type and row counts for FE charts
+- Lab quiz definitions and summary API
 
 Spec Folder:
 
-- _pending_
+- [specs/019-index-playground](../../specs/019-index-playground/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
+
+Notes:
+
+- Spec/plan/tasks: [specs/019-index-playground](../../specs/019-index-playground/)
+- API: `GET /api/v1/labs/:labSlug/summary`; SQL/explain/quiz reuse existing modules
+- Guided steps currently in-repo content; **Lab Flow Admin** migrates them to Platform DB
+- Labs unit tests: 11/11 pass; full suite previously 239/239
 
 ---
 
@@ -996,17 +946,18 @@ Depends On:
 
 - Explain Runner
 - Metrics Pipeline
-- Lab Shell
+- Lab Flow Admin
+- Quiz Admin CRUD
 
 Goal:  
 Teach query planner behavior via execution plans (ROADMAP §Explain Analyze Lab, PRD §Lab 2).
 
 Deliverables:
 
-- Interactive execution tree visualization
-- Cost, rows, planning time, execution time display
-- Guided scenarios comparing plan shapes
-- Quiz validating planner concepts
+- Normalized execution-tree payload for FE visualization
+- Cost, rows, planning time, execution time in Metric Contract
+- Guided scenario APIs comparing plan shapes (steps authored via Lab Flow Admin where possible)
+- Quiz definitions validating planner concepts (authored via Quiz Admin CRUD where possible)
 
 Spec Folder:
 
@@ -1030,7 +981,8 @@ Depends On:
 - Experiment Runner
 - Benchmark Infrastructure
 - Metrics Pipeline
-- Lab Shell
+- Lab Flow Admin
+- Quiz Admin CRUD
 
 Goal:  
 Demonstrate pagination performance differences between OFFSET and cursor patterns (ROADMAP §Offset vs Cursor, PRD §Lab 3).
@@ -1039,8 +991,8 @@ Deliverables:
 
 - Side-by-side offset and cursor pagination experiments
 - Benchmark comparison at scale
-- Visualization of latency vs page depth
-- Summary explaining when each approach fails
+- Latency-vs-page-depth metrics for FE charts
+- Summary content / guided steps explaining when each approach fails (content-driven via admin APIs where possible)
 
 Spec Folder:
 
@@ -1062,7 +1014,6 @@ Priority: P1
 Depends On:
 
 - Benchmark Infrastructure
-- Lab Shell
 
 Goal:  
 Teach throughput and latency under load using platform benchmark tooling (ROADMAP §Benchmark, PRD §Lab 8 / §13).
@@ -1070,9 +1021,9 @@ Teach throughput and latency under load using platform benchmark tooling (ROADMA
 Deliverables:
 
 - Configurable RPS tiers and duration presets
-- Latency P95/P99 and throughput charts
-- Compare runs before/after optimization
-- Educational narrative tying metrics to capacity planning
+- Latency P95/P99 and throughput metrics API
+- Compare-runs API before/after optimization
+- Educational narrative content for capacity planning
 
 Spec Folder:
 
@@ -1105,17 +1056,16 @@ Depends On:
 
 - Experiment Runner
 - Metrics Pipeline
-- Lab Shell
 
 Goal:  
 Teach connection pool behavior under concurrent load (ROADMAP §Phase 2 — Connection Pool).
 
 Deliverables:
 
-- Visualize pool size, wait time, and saturation
+- Pool size, wait time, and saturation metrics API
 - Scenarios with constrained vs expanded pools
-- Metrics-driven comparison charts
-- Quiz on pool sizing tradeoffs
+- Comparison metrics for FE charts
+- Quiz definitions on pool sizing tradeoffs
 
 Spec Folder:
 
@@ -1132,7 +1082,7 @@ Checklist:
 
 ## Feature: Worker Queue Foundation
 
-Status: Todo  
+Status: Done  
 Priority: P0  
 Depends On:
 
@@ -1150,14 +1100,14 @@ Deliverables:
 
 Spec Folder:
 
-- _pending_
+- [specs/012-worker-queue-foundation](../../specs/012-worker-queue-foundation/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
 
 ---
 
@@ -1184,12 +1134,12 @@ Deliverables:
 - Isolated Redis instance per experiment session
 - Cache operation execution with timeout and resource limits
 - Metric Contract output: cache hit ratio, latency, key count, memory usage
-- Input Surface: command / config panel plugin for Lab Shell middle panel
+- Input Surface metadata for FE Redis command / config panel
 - No dependency on Playground PostgreSQL for cache operations
 
 Spec Folder:
 
-- _pending_
+- _pending_ _(draft at specs/018-redis-sandbox-runtime — paused)_
 
 Checklist:
 
@@ -1213,7 +1163,6 @@ Priority: P1
 Depends On:
 
 - Redis Sandbox Runtime
-- Lab Shell
 
 Goal:  
 Demonstrate cache-aside read pattern with measurable hit/miss impact.
@@ -1253,7 +1202,7 @@ Deliverables:
 
 - Write-through experiment scenarios
 - Consistency and latency metrics
-- Visualization of write path
+- Metrics payload for write path
 - Comparison summary with cache-aside
 
 Spec Folder:
@@ -1407,7 +1356,6 @@ Priority: P1
 Depends On:
 
 - Experiment Runner
-- Lab Shell
 
 Goal:  
 Teach basic transaction boundaries and rollback behavior.
@@ -1514,7 +1462,7 @@ Demonstrate dirty reads at READ UNCOMMITTED level.
 Deliverables:
 
 - Reproducible dirty read scenario
-- Visualization of uncommitted data visibility
+- Metrics payload for uncommitted data visibility
 - Quiz on why level is rarely used
 
 Spec Folder:
@@ -1759,429 +1707,9 @@ Visualize wait-for graphs and blocked sessions (ROADMAP §Database Track — Dea
 
 Deliverables:
 
-- Wait-for graph UI from backend data
-- Session timeline of lock waits
-- Integrated quiz
-
-Spec Folder:
-
-- _pending_
-
-Checklist:
-
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
-
----
-
-# Phase 4 — Track: Frontend Performance
-
-Theme: React Rendering, browser rendering, bundle and network optimization (ROADMAP §9, PRD §17).
-
-## Epic: Runtime Adapters (Headless React)
-
-React Rendering Track infrastructure — component sandbox and render profiling (DOMAIN §Runtime Adapter).
-
----
-
-## Feature: React Sandbox Runtime
-
-Status: Todo  
-Priority: P0  
-Depends On:
-
-- Lab Shell
-- Metrics Pipeline
-
-Goal:  
-Provide the Headless React Runtime Adapter for React Rendering Track labs (ROADMAP §React Rendering Track).
-
-Deliverables:
-
-- Isolated component render environment per experiment session
-- Render count and commit duration capture from backend
-- Metric Contract output for React-specific metrics (render count, commit duration, memo hit rate)
-- Input Surface: component sandbox plugin for Lab Shell middle panel
-- No dependency on Playground PostgreSQL
-
-Spec Folder:
-
-- _pending_
-
-Checklist:
-
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
-
----
-
-## Epic: React Rendering Track
-
----
-
-## Feature: Render Count & Profiler
-
-Status: Todo  
-Priority: P1  
-Depends On:
-
-- React Sandbox Runtime
-- Lab Shell
-
-Goal:  
-Make React re-render behavior visible (ROADMAP §React Rendering Track).
-
-Deliverables:
-
-- Render count instrumentation in lab UI
-- React Profiler integration
-- Before/after comparison exercises
-
-Spec Folder:
-
-- _pending_
-
-Checklist:
-
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
-
----
-
-## Feature: React.memo, useMemo, useCallback
-
-Status: Todo  
-Priority: P1  
-Depends On:
-
-- Render Count & Profiler
-
-Goal:  
-Teach memoization tools and when they help or hurt.
-
-Deliverables:
-
-- Interactive memo toggles with metrics
-- Misuse scenarios (unnecessary memo)
-- Quiz on optimization criteria
-
-Spec Folder:
-
-- _pending_
-
-Checklist:
-
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
-
----
-
-## Feature: List Virtualization
-
-Status: Todo  
-Priority: P2  
-Depends On:
-
-- Render Count & Profiler
-
-Goal:  
-Demonstrate virtualization for large lists (ROADMAP §React Rendering Track).
-
-Deliverables:
-
-- Virtualized vs full list performance comparison
-- Scroll and paint metrics from backend/browser capture
-- Summary on list sizing thresholds
-
-Spec Folder:
-
-- _pending_
-
-Checklist:
-
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
-
----
-
-## Epic: Browser Rendering Track
-
----
-
-## Feature: Layout, Paint & Composite
-
-Status: Todo  
-Priority: P1  
-Depends On:
-
-- Lab Shell
-
-Goal:  
-Explain browser rendering pipeline stages (ROADMAP §Browser Rendering Track).
-
-Deliverables:
-
-- Stage-by-stage rendering demos
-- Timeline visualization
-- Quiz on pipeline order
-
-Spec Folder:
-
-- _pending_
-
-Checklist:
-
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
-
----
-
-## Feature: Reflow & Repaint
-
-Status: Todo  
-Priority: P1  
-Depends On:
-
-- Layout, Paint & Composite
-
-Goal:  
-Show cost of layout thrashing and repaints.
-
-Deliverables:
-
-- Reflow-inducing vs compositor-only changes
-- Paint count metrics
-- Optimization checklist for learners
-
-Spec Folder:
-
-- _pending_
-
-Checklist:
-
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
-
----
-
-## Feature: GPU & Layer Optimization
-
-Status: Todo  
-Priority: P2  
-Depends On:
-
-- Reflow & Repaint
-
-Goal:  
-Teach layer promotion and GPU compositing (ROADMAP §Browser Rendering — GPU).
-
-Deliverables:
-
-- Layer explosion vs disciplined promotion demos
-- Frame time metrics
-- Summary on will-change and transforms
-
-Spec Folder:
-
-- _pending_
-
-Checklist:
-
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
-
----
-
-## Epic: Bundle Track
-
----
-
-## Feature: Lazy Loading & Dynamic Import
-
-Status: Todo  
-Priority: P1  
-Depends On:
-
-- Lab Shell
-
-Goal:  
-Reduce initial bundle via lazy routes and components (ROADMAP §Bundle Track).
-
-Deliverables:
-
-- Before/after bundle size comparison
-- Route-level lazy load exercise
-- Load time metrics
-
-Spec Folder:
-
-- _pending_
-
-Checklist:
-
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
-
----
-
-## Feature: Tree Shaking & Code Splitting
-
-Status: Todo  
-Priority: P1  
-Depends On:
-
-- Lazy Loading & Dynamic Import
-
-Goal:  
-Demonstrate dead code elimination and chunk splitting.
-
-Deliverables:
-
-- Tree-shaking visibility in build output
-- Manual vs automatic split comparison
-- Quiz on import patterns
-
-Spec Folder:
-
-- _pending_
-
-Checklist:
-
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
-
----
-
-## Feature: Route Splitting
-
-Status: Todo  
-Priority: P2  
-Depends On:
-
-- Tree Shaking & Code Splitting
-
-Goal:  
-Apply route-based code splitting for multi-lab SPA (ROADMAP §Bundle Track).
-
-Deliverables:
-
-- Per-route chunk map
-- Navigation load metrics
-- Best practices summary
-
-Spec Folder:
-
-- _pending_
-
-Checklist:
-
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
-
----
-
-## Epic: Network Optimization Track
-
----
-
-## Feature: Request Waterfall & Payload Size
-
-Status: Todo  
-Priority: P1  
-Depends On:
-
-- Lab Shell
-
-Goal:  
-Visualize network waterfalls and payload impact (ROADMAP §Network Optimization).
-
-Deliverables:
-
-- Waterfall chart from captured HAR-like metrics
-- Payload size before/after compression demo
-- Quiz on request chaining
-
-Spec Folder:
-
-- _pending_
-
-Checklist:
-
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
-
----
-
-## Feature: Caching Headers & CDN Concepts
-
-Status: Todo  
-Priority: P2  
-Depends On:
-
-- Request Waterfall & Payload Size
-
-Goal:  
-Teach HTTP caching and CDN edge behavior.
-
-Deliverables:
-
-- Cache-Control experiment scenarios
-- CDN hit/miss simulation
-- Metrics on TTFB improvement
-
-Spec Folder:
-
-- _pending_
-
-Checklist:
-
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
-
----
-
-## Feature: Network Performance Metrics
-
-Status: Todo  
-Priority: P2  
-Depends On:
-
-- Request Waterfall & Payload Size
-
-Goal:  
-Consolidate network KPIs for frontend performance labs.
-
-Deliverables:
-
-- TTFB, download time, and resource count dashboards
-- Compare optimized vs baseline runs
-- Summary tying metrics to user-perceived speed
+- Wait-for graph payload from backend data
+- Session timeline of lock waits (API)
+- Quiz definitions for deadlock concepts
 
 Spec Folder:
 
@@ -2198,11 +1726,10 @@ Checklist:
 
 ## Release Milestones
 
-| Milestone | Target              | Backlog scope                                                        |
+| Milestone | Target              | Backlog scope (backend)                                              |
 | --------- | ------------------- | -------------------------------------------------------------------- |
-| MVP       | Phase 1 complete    | Database/SQL: login → run SQL → reset → EXPLAIN → benchmark → core labs |
-| Beta      | Phase 1 + Phase 2   | Database + Caching & Concurrency (Redis, transactions, isolation)    |
-| Public    | Phase 1 + 2 + 4     | All three Tracks: Database, Caching, Frontend Performance            |
+| MVP       | Phase 1 complete    | Database/SQL APIs: auth → run SQL → reset → EXPLAIN → benchmark → core lab backends |
+| Beta      | Phase 1 + Phase 2   | Database + Caching & Concurrency (Redis, transactions, isolation) APIs |
 
 ---
 
@@ -2210,24 +1737,40 @@ Checklist:
 
 Link completed specs here for traceability (update **Spec Folder** in each feature when created):
 
-| Feature            | Spec folder | Status                                       |
-| ------------------ | ----------- | -------------------------------------------- |
-| Authentication     | _pending_   | Backend API partial (auth module in `src/modules/auth`) |
-| Track Registry     | specs/001-track-registry | Review                              |
+| Feature                       | Spec folder                           | Status |
+| ----------------------------- | ------------------------------------- | ------ |
+| Track Registry                | specs/001-track-registry              | Done   |
+| SQL Sandbox & Resource Limits | specs/002-sql-sandbox                 | Done   |
+| Dataset Loader                | specs/003-dataset-loader              | Done   |
+| Dataset Reset                 | specs/004-dataset-reset               | Done   |
+| Experiment Runner             | specs/005-experiment-runner           | Done   |
+| Experiment Isolation          | specs/006-experiment-isolation        | Done   |
+| Explain Runner                | specs/007-explain-runner              | Done   |
+| Metrics Pipeline              | specs/008-metrics-pipeline            | Done   |
+| Authentication                | specs/009-authentication              | Done   |
+| Per-User Rate Limit           | specs/010-per-user-rate-limit         | Done   |
+| Benchmark Runner              | specs/011-benchmark-runner            | Done   |
+| Worker Queue Foundation       | specs/012-worker-queue-foundation     | Done   |
+| SQL Execution Queue           | specs/013-sql-execution-queue         | Done   |
+| Benchmark Metrics             | specs/014-benchmark-metrics           | Done   |
+| Realtime Progress             | specs/015-realtime-progress           | Done   |
+| Progress Tracking             | specs/016-progress-tracking           | Done   |
+| Quiz Engine                   | specs/017-quiz-engine                 | Done   |
+| Index Playground              | specs/019-index-playground            | Done   |
 | _add rows as specs are created_ | | |
 
 ---
 
-## Suggested next features (P0, dependencies met)
+## Suggested next features (P1, dependencies met)
 
-| Order | Feature                       | Epic                              |
-| ----- | ----------------------------- | --------------------------------- |
-| 1     | Track Registry                | Learning Platform                 |
-| 2     | SQL Sandbox & Resource Limits | Runtime Adapters (PostgreSQL)     |
-| 3     | Dataset Loader                | Runtime Adapters (PostgreSQL)     |
-| 4     | Authentication                | Learning Platform                 |
-| 5     | Dataset Reset                 | Runtime Adapters (PostgreSQL)     |
-| 6     | Experiment Isolation          | Runtime Adapters (PostgreSQL)     |
-| 7     | Experiment Runner             | Runtime Adapters (PostgreSQL)     |
-| 8     | Per-User Rate Limit           | Runtime Adapters (PostgreSQL)     |
-| 9     | SQL Execution Queue           | Runtime Adapters (PostgreSQL)     |
+Admin / Content Ops first so later labs are content-driven; then remaining Database Track Labs.
+
+| Order | Feature              | Epic                 |
+| ----- | -------------------- | -------------------- |
+| 1     | Admin AuthZ          | Admin / Content Ops  |
+| 2     | Track & Lab Admin CRUD | Admin / Content Ops |
+| 3     | Lab Flow Admin       | Admin / Content Ops  |
+| 4     | Quiz Admin CRUD      | Admin / Content Ops  |
+| 5     | User Admin           | Admin / Content Ops  |
+| 6     | Explain Analyze Lab  | Database Track Labs  |
+| 7     | Offset vs Cursor Lab | Database Track Labs  |
