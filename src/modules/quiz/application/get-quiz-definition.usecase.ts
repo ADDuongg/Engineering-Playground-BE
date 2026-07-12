@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { ErrorCode, QuizDefinitionResponse, TrackStatus } from '@db-play/types';
+import {
+  ErrorCode,
+  LabStatus,
+  QuizDefinitionResponse,
+  TrackStatus,
+} from '@db-play/types';
 import { DomainError } from '../../../common/errors/domain.error';
 import { LabRepository } from '../../progress/infrastructure/lab.repository';
 import { QuizRepository } from '../infrastructure/quiz.repository';
@@ -34,6 +39,14 @@ export class GetQuizDefinitionUseCase {
       throw new DomainError(
         ErrorCode.FORBIDDEN,
         `Lab "${labSlug}" belongs to a track that is not available for learning yet.`,
+        403,
+      );
+    }
+
+    if (lab.status !== LabStatus.ACTIVE) {
+      throw new DomainError(
+        ErrorCode.FORBIDDEN,
+        'Lab is coming soon and is not available to start yet',
         403,
       );
     }

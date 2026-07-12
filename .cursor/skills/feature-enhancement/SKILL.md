@@ -1,6 +1,6 @@
 # Feature Enhancement Workflow
 
-Version: 1.0
+Version: 1.1
 
 Status: Active
 
@@ -12,9 +12,9 @@ Owner: Engineering Team
 
 This workflow is used when extending an existing Feature.
 
-Unlike Feature Development, Feature Enhancement DOES NOT create a new specification.
+Unlike Feature Development, Feature Enhancement **does not create a new specification**.
 
-Instead, it updates the existing Feature specification.
+Instead, it updates the existing Feature specification and keeps all related API contracts synchronized.
 
 Examples
 
@@ -38,6 +38,8 @@ Update Specification
         ↓
 Review Impact
         ↓
+Regenerate API Contract
+        ↓
 Generate Tasks
         ↓
 Implement
@@ -47,6 +49,8 @@ Review
 Test
         ↓
 Update Documentation
+        ↓
+Update Backlog
 ```
 
 ---
@@ -65,7 +69,8 @@ Read
 
 Then read
 
-Existing Feature Spec
+- Existing Feature Specification
+- Existing API Contract (if available)
 
 Never implement without understanding the current implementation.
 
@@ -75,23 +80,19 @@ Never implement without understanding the current implementation.
 
 Locate
 
-Feature
-
-Spec Folder
-
-Implementation
-
-Tests
-
-Documentation
+- Feature
+- Spec Folder
+- Contract Folder
+- Implementation
+- Tests
+- Documentation
 
 Understand
 
-Current responsibilities
-
-Current limitations
-
-Current dependencies
+- Current responsibilities
+- Current limitations
+- Current dependencies
+- Existing API contract
 
 ---
 
@@ -99,17 +100,16 @@ Current dependencies
 
 Determine
 
-What changes
+- What changes
+- What remains unchanged
 
-What remains unchanged
+Determine whether this is
 
-Whether this is
-
-Feature Enhancement
+- Feature Enhancement
 
 or
 
-New Feature
+- New Feature
 
 If the enhancement introduces a completely new responsibility
 
@@ -121,19 +121,12 @@ Create a new Feature instead.
 
 # Step 4 — Update Specification
 
-Do NOT create a new Spec.
+Do **NOT** create a new Spec.
 
 Update
 
-requirements.md
-
-if requirements change.
-
-Update
-
-design.md
-
-if architecture or responsibilities change.
+- requirements.md (if requirements change)
+- design.md (if architecture or responsibilities change)
 
 Never duplicate specifications.
 
@@ -143,27 +136,45 @@ Never duplicate specifications.
 
 Review
 
-Dependencies
+- Dependencies
+- Architecture
+- API
+- Database
+- Events
+- Metrics
+- Visualization
 
-Architecture
-
-API
-
-Database
-
-Events
-
-Metrics
-
-Visualization
-
-Determine
-
-Which components will be affected.
+Determine which components will be affected.
 
 ---
 
-# Step 6 — Regenerate Tasks
+# Step 6 — Update API Contract
+
+If the enhancement changes any external interface, synchronize the corresponding files under the `contracts/` directory.
+
+This includes, but is not limited to:
+
+- OpenAPI specifications
+- API schemas
+- DTO definitions
+- Request/Response payloads
+- Validation rules
+- Error responses
+- Event contracts
+- WebSocket contracts
+- Shared types
+
+Rules
+
+- Never leave Specifications and Contracts inconsistent.
+- The contract must always reflect the latest specification.
+- Do not manually modify generated files.
+- If contracts are generated, regenerate them using the project's workflow or tooling.
+- If no API changes are introduced, verify that existing contracts remain valid.
+
+---
+
+# Step 7 — Regenerate Tasks
 
 Run
 
@@ -175,23 +186,19 @@ Avoid regenerating completed tasks.
 
 ---
 
-# Step 7 — Review Tasks
+# Step 8 — Review Tasks
 
-Verify
+Verify tasks are
 
-Tasks are
-
-Small
-
-Independent
-
-Testable
+- Small
+- Independent
+- Testable
 
 No duplicated work.
 
 ---
 
-# Step 8 — Implementation
+# Step 9 — Implementation
 
 Run
 
@@ -203,69 +210,64 @@ Reuse existing code whenever possible.
 
 Avoid unnecessary abstraction.
 
+If implementation changes an API, event, or shared type, update the corresponding contract immediately.
+
 ---
 
-# Step 9 — Review
+# Step 10 — Review
 
 Review
 
-Architecture
+- Architecture
+- Dependencies
+- Naming
+- Performance
+- Backward Compatibility
+- API Contract Consistency
 
-Dependencies
-
-Naming
-
-Performance
-
-Backward Compatibility
-
-No regression.
+Ensure there is no regression and that contracts match the implementation.
 
 ---
 
-# Step 10 — Testing
+# Step 11 — Testing
 
 Run
 
-Unit Tests
-
-Integration Tests
-
-Regression Tests
+- Unit Tests
+- Integration Tests
+- Contract Validation
+- Regression Tests
 
 Regression testing is mandatory.
 
+If contract tests exist, they must pass before completion.
+
 ---
 
-# Step 11 — Documentation
+# Step 12 — Documentation
 
 Update
 
-Spec
-
-User Documentation
-
-Developer Documentation
-
-Examples
-
-Screenshots (if needed)
+- Spec
+- API Contract Documentation
+- User Documentation
+- Developer Documentation
+- Examples
+- Screenshots (if needed)
 
 Documentation should always reflect the latest behavior.
 
 ---
 
-# Step 12 — Update Backlog
+# Step 13 — Update Backlog
 
 Update
 
-Feature Status
-
-Implementation Notes
-
-Spec Folder
-
-Progress
+- Feature Status
+- Implementation Notes
+- Spec Folder
+- Contract Folder
+- Progress
 
 ---
 
@@ -275,9 +277,15 @@ Enhancement is complete when
 
 ✓ Existing Spec updated
 
+✓ API Contract updated (if applicable)
+
+✓ Contract folder synchronized
+
 ✓ Tasks completed
 
 ✓ Tests passing
+
+✓ Contract validation passing
 
 ✓ No regression
 
@@ -291,17 +299,15 @@ Enhancement is complete when
 
 AI MUST
 
-Read the existing Feature before making changes.
-
-Prefer extending existing modules.
-
-Never duplicate responsibilities.
-
-Never create a second implementation of the same Feature.
-
-Preserve backward compatibility whenever possible.
-
-Update the existing Spec instead of creating a new one.
+- Read the existing Feature before making changes.
+- Read the existing Contract before modifying APIs.
+- Prefer extending existing modules.
+- Never duplicate responsibilities.
+- Never create a second implementation of the same Feature.
+- Preserve backward compatibility whenever possible.
+- Update the existing Spec instead of creating a new one.
+- Keep the `contracts/` directory synchronized with the implementation.
+- Never finish a Feature Enhancement if the Specification and Contract are inconsistent.
 
 ---
 
@@ -333,4 +339,4 @@ Do not replace them.
 
 Keep the architecture consistent.
 
-Prefer evolution over duplication.
+Keep Specifications, Contracts, and Implementation synchronized at all times.

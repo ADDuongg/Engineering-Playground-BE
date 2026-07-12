@@ -1,16 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { ErrorCode, LabSummaryResponse, TrackStatus } from '@db-play/types';
+import {
+  ErrorCode,
+  LabStatus,
+  LabSummaryResponse,
+  TrackStatus,
+} from '@db-play/types';
 import { DomainError } from '../../../common/errors/domain.error';
 import { LabRepository } from '../../progress/infrastructure/lab.repository';
 import { QuizRepository } from '../../quiz/infrastructure/quiz.repository';
-import { LabSummaryRegistry } from '../infrastructure/lab-summary.registry';
+import { LabSummaryCurriculumRepository } from '../infrastructure/lab-summary-curriculum.repository';
+import { LabGuidedStepRepository } from '../infrastructure/lab-guided-step.repository';
 import { toLabSummaryResponse } from '../mappers/lab-summary.mapper';
 
 @Injectable()
 export class GetLabSummaryUseCase {
   constructor(
     private readonly labRepository: LabRepository,
-    private readonly labSummaryRegistry: LabSummaryRegistry,
+    private readonly curriculumRepository: LabSummaryCurriculumRepository,
+    private readonly stepRepository: LabGuidedStepRepository,
     private readonly quizRepository: QuizRepository,
   ) {}
 
@@ -40,8 +47,16 @@ export class GetLabSummaryUseCase {
       );
     }
 
-    const content = this.labSummaryRegistry.getByLabSlug(labSlug);
-    if (!content) {
+    if (lab.status !== LabStatus.ACTIVE) {
+      throw new DomainError(
+        ErrorCode.FORBIDDEN,
+        'Lab is coming soon and is not available to start yet',
+        403,
+      );
+    }
+
+    const curriculum = await this.curriculumRepository.findByLabId(lab.id);
+    if (!curriculum) {
       throw new DomainError(
         ErrorCode.NOT_FOUND,
         `Lab summary for "${labSlug}" was not found.`,
@@ -49,9 +64,10 @@ export class GetLabSummaryUseCase {
       );
     }
 
+    const steps = await this.stepRepository.findOrderedByLabId(lab.id);
     const quizExists = await this.quizRepository.existsByLabId(lab.id);
-    const quizRequired = content.quizRequired || quizExists;
+    const quizRequired = curriculum.quizRequired || quizExists;
 
-    return toLabSummaryResponse(lab, content, quizRequired);
+    return toLabSummaryResponse(lab, curriculum, steps, quizRequired);
   }
 }

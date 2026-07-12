@@ -85,14 +85,32 @@ docker compose -f infra/docker-compose.yml up --build
 
 ## API Endpoints (Auth)
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/api/v1/auth/register` | Public | Register new user |
-| POST | `/api/v1/auth/login` | Public | Login |
-| POST | `/api/v1/auth/refresh` | Public | Refresh tokens |
-| POST | `/api/v1/auth/logout` | Bearer | Revoke refresh token |
-| GET | `/api/v1/auth/me` | Bearer | Get profile |
-| GET | `/api/v1/health` | Public | Health check |
+| Method | Endpoint                | Auth           | Description                   |
+| ------ | ----------------------- | -------------- | ----------------------------- |
+| POST   | `/api/v1/auth/register` | Public         | Register new user             |
+| POST   | `/api/v1/auth/login`    | Public         | Login                         |
+| POST   | `/api/v1/auth/refresh`  | Public         | Refresh tokens                |
+| POST   | `/api/v1/auth/logout`   | Bearer         | Revoke refresh token          |
+| GET    | `/api/v1/auth/me`       | Bearer         | Get profile                   |
+| GET    | `/api/v1/admin/me`      | Bearer + admin | Admin whoami (operator probe) |
+| GET    | `/api/v1/health`        | Public         | Health check                  |
+
+### Local/dev seed accounts
+
+After `pnpm migration:run`, these accounts are available (password for both: `Password123!`):
+
+| Email                    | Role  | Notes                       |
+| ------------------------ | ----- | --------------------------- |
+| `admin@playground.local` | admin | Call `GET /api/v1/admin/me` |
+| `user@playground.local`  | user  | Standard learner            |
+
+Manual role promotion (optional): [specs/020-admin-authz/quickstart.md](./specs/020-admin-authz/quickstart.md).
+
+Admin Track & Lab catalog CRUD: [specs/021-track-lab-admin-crud/quickstart.md](./specs/021-track-lab-admin-crud/quickstart.md).
+
+Admin Lab Flow (guided steps + curriculum): [specs/022-lab-flow-admin/quickstart.md](./specs/022-lab-flow-admin/quickstart.md).
+
+Admin Quiz CRUD (questions/options/answer key): [specs/023-quiz-admin-crud/quickstart.md](./specs/023-quiz-admin-crud/quickstart.md).
 
 ## Response Format
 
@@ -137,13 +155,13 @@ pnpm migration:generate -- <name>  # Generate new migration
 
 ## Jobs / Benchmark API
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/api/v1/jobs/:jobId` | Bearer | Poll any foundation job status |
-| POST | `/api/v1/benchmarks` | Bearer | Enqueue benchmark (`jobId` immediately) |
-| GET | `/api/v1/benchmarks/:jobId` | Bearer | Compatibility status (prefer `/jobs/:jobId`) |
-| GET | `/api/v1/benchmarks/:jobId/progress` | Bearer / session | SSE live progress (push-only; not JSON envelope) |
-| POST | `/api/v1/datasets/reset` | Bearer | Enqueue dataset reset (`202` + `jobId`) |
+| Method | Endpoint                             | Auth             | Description                                      |
+| ------ | ------------------------------------ | ---------------- | ------------------------------------------------ |
+| GET    | `/api/v1/jobs/:jobId`                | Bearer           | Poll any foundation job status                   |
+| POST   | `/api/v1/benchmarks`                 | Bearer           | Enqueue benchmark (`jobId` immediately)          |
+| GET    | `/api/v1/benchmarks/:jobId`          | Bearer           | Compatibility status (prefer `/jobs/:jobId`)     |
+| GET    | `/api/v1/benchmarks/:jobId/progress` | Bearer / session | SSE live progress (push-only; not JSON envelope) |
+| POST   | `/api/v1/datasets/reset`             | Bearer           | Enqueue dataset reset (`202` + `jobId`)          |
 
 Optional env: `BENCHMARK_PROGRESS_INTERVAL_MS` (default `1000`), `BENCHMARK_PROGRESS_TTL_SECONDS` (default `86400`).
 

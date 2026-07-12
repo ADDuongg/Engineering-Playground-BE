@@ -730,7 +730,7 @@ Backend admin APIs so operators manage Tracks, Labs, guided lab flows, quizzes, 
 
 ## Feature: Admin AuthZ
 
-Status: Todo  
+Status: Done  
 Priority: P1  
 Depends On:
 
@@ -748,20 +748,27 @@ Deliverables:
 
 Spec Folder:
 
-- _pending_
+- [specs/020-admin-authz](../../specs/020-admin-authz/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
+
+Notes:
+
+- API: `GET /api/v1/admin/me` (admin whoami); global `RolesGuard` + `@Roles(Role.ADMIN)`
+- Dev seed: `admin@playground.local` / `user@playground.local` (password `Password123!`) via migration `1730600000000-SeedDevUsers`
+- Local/dev promotion (optional): [specs/020-admin-authz/quickstart.md](../../specs/020-admin-authz/quickstart.md)
+- Tests: `roles.guard.spec` + `get-admin-me.usecase.spec` + `pnpm test:e2e -- admin-authz.integration-spec` (4/4)
 
 ---
 
 ## Feature: Track & Lab Admin CRUD
 
-Status: Todo  
+Status: Done  
 Priority: P1  
 Depends On:
 
@@ -781,20 +788,28 @@ Deliverables:
 
 Spec Folder:
 
-- _pending_
+- [specs/021-track-lab-admin-crud](../../specs/021-track-lab-admin-crud/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
+
+Notes:
+
+- API: admin tracks/labs under `/api/v1/admin/*` (create/update/list/get; no DELETE — soft-hide via status)
+- Lab `status` migration `1730700000000-AddLabStatusAndBackfill` (existing labs → `active`; create omit → `coming-soon`)
+- Learner path/progress include lab `status`; summary/complete/quiz gated on lab `active`
+- Tests: admin use-case unit specs + `pnpm test:e2e -- track-lab-admin.integration-spec` (2/2)
+- Quickstart: [specs/021-track-lab-admin-crud/quickstart.md](../../specs/021-track-lab-admin-crud/quickstart.md)
 
 ---
 
 ## Feature: Lab Flow Admin
 
-Status: Todo  
+Status: Review  
 Priority: P1  
 Depends On:
 
@@ -814,20 +829,29 @@ Deliverables:
 
 Spec Folder:
 
-- _pending_
+- [specs/022-lab-flow-admin](../../specs/022-lab-flow-admin/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
+
+Notes:
+
+- API: admin steps/curriculum under `/api/v1/admin/labs/:labSlug/*`; hard cutover (no registry fallback)
+- Migration `1730800000000-CreateLabFlowTablesAndSeedIndexPlayground` (skip seed if curriculum or steps exist)
+- Enhancement: step SQL payloads + `1730900000000-BackfillIndexPlaygroundStepSqlPayloads` — learner `guidedSteps[].payload` holds Apply SQL; top-level recommended* derived from steps
+- Curriculum: create-once + PATCH (omit unchanged; null clears nullable fields)
+- Tests: unit specs + `pnpm test:e2e -- lab-flow-admin.integration-spec` (2/2)
+- Quickstart: [specs/022-lab-flow-admin/quickstart.md](../../specs/022-lab-flow-admin/quickstart.md)
 
 ---
 
 ## Feature: Quiz Admin CRUD
 
-Status: Todo  
+Status: Review  
 Priority: P1  
 Depends On:
 
@@ -847,20 +871,28 @@ Deliverables:
 
 Spec Folder:
 
-- _pending_
+- [specs/023-quiz-admin-crud](../../specs/023-quiz-admin-crud/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
+
+Notes:
+
+- API: admin quiz under `/api/v1/admin/labs/:labSlug/quiz` (shell + questions inline create + granular options + reorder)
+- Gate on quiz shell create; empty submit → 400; hard delete cascades attempts; lab completions preserved
+- Learner definition never returns `isCorrect`
+- Tests: unit (answer-key, shell, question/option) + `pnpm test:e2e -- quiz-admin.integration-spec` (1/1)
+- Quickstart: [specs/023-quiz-admin-crud/quickstart.md](../../specs/023-quiz-admin-crud/quickstart.md)
 
 ---
 
 ## Feature: User Admin
 
-Status: Todo  
+Status: Review  
 Priority: P1  
 Depends On:
 
@@ -879,14 +911,22 @@ Deliverables:
 
 Spec Folder:
 
-- _pending_
+- [specs/024-user-admin](../../specs/024-user-admin/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
+
+Notes:
+
+- API: `GET/PATCH /api/v1/admin/users` (+ get by id); pagination `page`/`limit`/`q`; no DELETE/soft-disable
+- Migration `1731000000000-AddUserUpdatedBy` (`updated_by` FK, set on real role changes only)
+- Last-admin: transactional pessimistic lock; same-role no-op; no token revoke on demote
+- Tests: unit (list/get/update-role) + `pnpm test:e2e -- user-admin.integration-spec` (2/2)
+- Quickstart: [specs/024-user-admin/quickstart.md](../../specs/024-user-admin/quickstart.md)
 
 ---
 
@@ -1757,6 +1797,11 @@ Link completed specs here for traceability (update **Spec Folder** in each featu
 | Progress Tracking             | specs/016-progress-tracking           | Done   |
 | Quiz Engine                   | specs/017-quiz-engine                 | Done   |
 | Index Playground              | specs/019-index-playground            | Done   |
+| Admin AuthZ                   | specs/020-admin-authz                 | Done   |
+| Track & Lab Admin CRUD        | specs/021-track-lab-admin-crud        | Done   |
+| Lab Flow Admin                | specs/022-lab-flow-admin              | Review |
+| Quiz Admin CRUD               | specs/023-quiz-admin-crud             | Review |
+| User Admin                    | specs/024-user-admin                  | Review |
 | _add rows as specs are created_ | | |
 
 ---
@@ -1765,12 +1810,9 @@ Link completed specs here for traceability (update **Spec Folder** in each featu
 
 Admin / Content Ops first so later labs are content-driven; then remaining Database Track Labs.
 
-| Order | Feature              | Epic                 |
-| ----- | -------------------- | -------------------- |
-| 1     | Admin AuthZ          | Admin / Content Ops  |
-| 2     | Track & Lab Admin CRUD | Admin / Content Ops |
-| 3     | Lab Flow Admin       | Admin / Content Ops  |
-| 4     | Quiz Admin CRUD      | Admin / Content Ops  |
-| 5     | User Admin           | Admin / Content Ops  |
-| 6     | Explain Analyze Lab  | Database Track Labs  |
-| 7     | Offset vs Cursor Lab | Database Track Labs  |
+| Order | Feature              | Epic                 | Status |
+| ----- | -------------------- | -------------------- | ------ |
+| 1     | User Admin           | Admin / Content Ops  | Review |
+| 2     | Explain Analyze Lab  | Database Track Labs  | Todo (needs Quiz Admin CRUD) |
+| 3     | Offset vs Cursor Lab | Database Track Labs  | Todo (needs Quiz Admin CRUD) |
+| 4     | Benchmark Lab        | Database Track Labs  | Todo |

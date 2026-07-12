@@ -1,8 +1,11 @@
+import { LabStatus } from '../tracks/lab-status.enum';
+
 export interface LabPathItem {
   slug: string;
   title: string;
   description?: string | null;
   sequenceOrder: number;
+  status: LabStatus;
 }
 
 export interface TrackLearningPathResponse {

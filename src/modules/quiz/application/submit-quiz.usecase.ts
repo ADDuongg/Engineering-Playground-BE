@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   ErrorCode,
+  LabStatus,
   QUIZ_COMPLETED_EVENT,
   QuizCompletedEvent,
   SubmitQuizAnswer,
@@ -51,6 +52,14 @@ export class SubmitQuizUseCase {
       throw new DomainError(
         ErrorCode.FORBIDDEN,
         `Lab "${labSlug}" belongs to a track that is not available for learning yet.`,
+        403,
+      );
+    }
+
+    if (lab.status !== LabStatus.ACTIVE) {
+      throw new DomainError(
+        ErrorCode.FORBIDDEN,
+        'Lab is coming soon and is not available to start yet',
         403,
       );
     }

@@ -12,6 +12,7 @@ import { DomainExceptionFilter } from './common/filters/domain-exception.filter'
 import { ResponseEnvelopeInterceptor } from './common/interceptors/response-envelope.interceptor';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { RolesGuard } from './common/guards/roles.guard';
 import { AppThrottlerGuard } from './common/guards/app-throttler.guard';
 import { PlatformDatabaseModule } from './database/platform/platform-database.module';
 import { PlaygroundDatabaseModule } from './database/playground/playground-database.module';
@@ -30,6 +31,7 @@ import { WorkerQueueModule } from './modules/worker-queue/worker-queue.module';
 import { ProgressModule } from './modules/progress/progress.module';
 import { QuizModule } from './modules/quiz/quiz.module';
 import { LabsModule } from './modules/labs/labs.module';
+import { AdminModule } from './modules/admin/admin.module';
 import { RedisModule } from './common/services/redis.module';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 
@@ -82,6 +84,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     ProgressModule,
     QuizModule,
     LabsModule,
+    AdminModule,
   ],
   providers: [
     {
@@ -107,6 +110,10 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
   ],
 })

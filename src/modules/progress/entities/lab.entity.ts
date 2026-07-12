@@ -8,6 +8,7 @@ import {
   JoinColumn,
   OneToMany,
 } from 'typeorm';
+import { LabStatus } from '@db-play/types';
 import { TrackEntity } from '../../tracks/entities/track.entity';
 import { UserLabCompletionEntity } from './user-lab-completion.entity';
 
@@ -34,6 +35,14 @@ export class LabEntity {
 
   @Column({ name: 'sequence_order', type: 'int' })
   sequenceOrder!: number;
+
+  @Column({
+    type: 'enum',
+    enum: LabStatus,
+    enumName: 'labs_status_enum',
+    default: LabStatus.ACTIVE,
+  })
+  status!: LabStatus;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;

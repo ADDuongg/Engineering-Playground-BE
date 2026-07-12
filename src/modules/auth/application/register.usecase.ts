@@ -34,6 +34,7 @@ export class RegisterUseCase {
       passwordHash,
       displayName: dto.displayName,
       role: Role.USER,
+      updatedBy: null,
     });
 
     const tokens = await this.tokenService.generateTokens(user);

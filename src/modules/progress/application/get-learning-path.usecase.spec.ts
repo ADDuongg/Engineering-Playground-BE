@@ -44,6 +44,7 @@ describe('GetLearningPathUseCase', () => {
         title: 'Index Playground',
         description: 'desc',
         sequenceOrder: 1,
+        status: 'active',
       },
       {
         id: 'lab-2',
@@ -51,6 +52,7 @@ describe('GetLearningPathUseCase', () => {
         title: 'Explain Analyze Lab',
         description: null,
         sequenceOrder: 2,
+        status: 'coming-soon',
       },
     ] as never);
 
@@ -59,8 +61,10 @@ describe('GetLearningPathUseCase', () => {
     expect(result.trackSlug).toBe('database-sql');
     expect(result.labs).toHaveLength(2);
     expect(result.labs[0].slug).toBe('index-playground');
+    expect(result.labs[0].status).toBe('active');
     expect(result.labs[0]).not.toHaveProperty('completed');
     expect(result.labs[1].sequenceOrder).toBe(2);
+    expect(result.labs[1].status).toBe('coming-soon');
   });
 
   it('returns empty labs when track has none', async () => {

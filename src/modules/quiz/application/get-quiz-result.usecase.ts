@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   ErrorCode,
+  LabStatus,
   QuizResultSummaryResponse,
   TrackStatus,
 } from '@db-play/types';
@@ -43,6 +44,14 @@ export class GetQuizResultUseCase {
       throw new DomainError(
         ErrorCode.FORBIDDEN,
         `Lab "${labSlug}" belongs to a track that is not available for learning yet.`,
+        403,
+      );
+    }
+
+    if (lab.status !== LabStatus.ACTIVE) {
+      throw new DomainError(
+        ErrorCode.FORBIDDEN,
+        'Lab is coming soon and is not available to start yet',
         403,
       );
     }

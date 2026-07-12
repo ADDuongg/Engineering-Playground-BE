@@ -16,6 +16,7 @@ describe('TokenService', () => {
     passwordHash: 'hash',
     displayName: 'Test User',
     role: Role.USER,
+    updatedBy: null,
     createdAt: new Date(),
     updatedAt: new Date(),
     refreshTokens: [],

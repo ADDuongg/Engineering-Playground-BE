@@ -26,6 +26,9 @@ export class UserEntity {
   @Column({ type: 'enum', enum: Role, default: Role.USER })
   role!: Role;
 
+  @Column({ name: 'updated_by', type: 'uuid', nullable: true })
+  updatedBy!: string | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 

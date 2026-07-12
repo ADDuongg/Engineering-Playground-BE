@@ -7,6 +7,7 @@ import { QuizQuestionEntity } from './entities/quiz-question.entity';
 import { QuizOptionEntity } from './entities/quiz-option.entity';
 import { QuizAttemptEntity } from './entities/quiz-attempt.entity';
 import { QuizRepository } from './infrastructure/quiz.repository';
+import { QuizQuestionRepository } from './infrastructure/quiz-question.repository';
 import { QuizAttemptRepository } from './infrastructure/quiz-attempt.repository';
 import { QuizGateAdapter } from './infrastructure/quiz-gate.adapter';
 import { GetQuizDefinitionUseCase } from './application/get-quiz-definition.usecase';
@@ -25,6 +26,7 @@ import { QuizController } from './quiz.controller';
   controllers: [QuizController],
   providers: [
     QuizRepository,
+    QuizQuestionRepository,
     QuizAttemptRepository,
     QuizGateAdapter,
     { provide: QUIZ_GATE_PORT, useExisting: QuizGateAdapter },
@@ -34,6 +36,7 @@ import { QuizController } from './quiz.controller';
   ],
   exports: [
     QuizRepository,
+    QuizQuestionRepository,
     QuizAttemptRepository,
     QUIZ_GATE_PORT,
   ],

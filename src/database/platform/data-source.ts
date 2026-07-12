@@ -10,12 +10,19 @@ import { QuizEntity } from '../../modules/quiz/entities/quiz.entity';
 import { QuizQuestionEntity } from '../../modules/quiz/entities/quiz-question.entity';
 import { QuizOptionEntity } from '../../modules/quiz/entities/quiz-option.entity';
 import { QuizAttemptEntity } from '../../modules/quiz/entities/quiz-attempt.entity';
+import { LabSummaryCurriculumEntity } from '../../modules/labs/entities/lab-summary-curriculum.entity';
+import { LabGuidedStepEntity } from '../../modules/labs/entities/lab-guided-step.entity';
 import { InitAuthTables1730000000000 } from '../migrations/1730000000000-InitAuthTables';
 import { InitTracksTable1730100000000 } from '../migrations/1730100000000-InitTracksTable';
 import { CreateMetricSnapshotsTable1730200000000 } from '../migrations/1730200000000-CreateMetricSnapshotsTable';
 import { ExtendMetricSnapshotsForBenchmark1730300000000 } from '../migrations/1730300000000-ExtendMetricSnapshotsForBenchmark';
 import { CreateLabsAndUserLabCompletions1730400000000 } from '../migrations/1730400000000-CreateLabsAndUserLabCompletions';
 import { CreateQuizTablesAndSeed1730500000000 } from '../migrations/1730500000000-CreateQuizTablesAndSeed';
+import { SeedDevUsers1730600000000 } from '../migrations/1730600000000-SeedDevUsers';
+import { AddLabStatusAndBackfill1730700000000 } from '../migrations/1730700000000-AddLabStatusAndBackfill';
+import { CreateLabFlowTablesAndSeedIndexPlayground1730800000000 } from '../migrations/1730800000000-CreateLabFlowTablesAndSeedIndexPlayground';
+import { BackfillIndexPlaygroundStepSqlPayloads1730900000000 } from '../migrations/1730900000000-BackfillIndexPlaygroundStepSqlPayloads';
+import { AddUserUpdatedBy1731000000000 } from '../migrations/1731000000000-AddUserUpdatedBy';
 import { loadMonorepoEnv } from '../../config/load-env';
 
 loadMonorepoEnv();
@@ -38,6 +45,8 @@ export default new DataSource({
     QuizQuestionEntity,
     QuizOptionEntity,
     QuizAttemptEntity,
+    LabSummaryCurriculumEntity,
+    LabGuidedStepEntity,
   ],
   migrations: [
     InitAuthTables1730000000000,
@@ -46,6 +55,11 @@ export default new DataSource({
     ExtendMetricSnapshotsForBenchmark1730300000000,
     CreateLabsAndUserLabCompletions1730400000000,
     CreateQuizTablesAndSeed1730500000000,
+    SeedDevUsers1730600000000,
+    AddLabStatusAndBackfill1730700000000,
+    CreateLabFlowTablesAndSeedIndexPlayground1730800000000,
+    BackfillIndexPlaygroundStepSqlPayloads1730900000000,
+    AddUserUpdatedBy1731000000000,
   ],
   synchronize: false,
 });

@@ -46,6 +46,6 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     GetMeUseCase,
     JwtStrategy,
   ],
-  exports: [JwtModule, PassportModule],
+  exports: [JwtModule, PassportModule, GetMeUseCase, UserRepository],
 })
 export class AuthModule {}

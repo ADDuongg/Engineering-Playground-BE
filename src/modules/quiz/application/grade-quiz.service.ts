@@ -23,9 +23,9 @@ export function gradeSingleSelectQuiz(
 
   if (totalQuestions === 0) {
     throw new DomainError(
-      ErrorCode.INTERNAL_ERROR,
-      'Quiz has no questions configured.',
-      500,
+      ErrorCode.VALIDATION_ERROR,
+      'Quiz has no questions configured and cannot be submitted.',
+      400,
     );
   }
 

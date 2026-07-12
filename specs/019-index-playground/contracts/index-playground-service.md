@@ -4,43 +4,36 @@
 
 All JSON responses use the standard API envelope: `{ success, data, meta, error }` unless noted.
 
-Experiment SQL, Explain, Dataset prepare/reset, Metrics history, Quiz, and Benchmark continue to use their existing contracts. This feature adds **lab summary** and documents the guided Index Playground learning loop against those APIs.
+Content is Platform-backed (Lab Flow Admin). Experiment SQL, Explain, Dataset, Metrics, Quiz, and Benchmark reuse existing contracts.
+
+**Canonical FE mapping for guided Apply SQL**: prefer `guidedSteps[].payload` (see below). Top-level `recommendedQuery` / create / drop remain for compatibility.
+
+Also documented in [022 Lab Flow Admin](../../022-lab-flow-admin/contracts/lab-flow-admin-api.md).
 
 ---
 
 ## GET /labs/:labSlug/summary
 
-**Purpose**: Authenticated lab summary (curriculum + guided SQL/DDL) for FE / clients without hard-coding Index Playground content.
+**Purpose**: Authenticated lab summary (curriculum + guided steps with per-step Apply SQL) for FE.
 
 **Auth**: JWT required
 
 ### Response `200 OK`
 
 ```typescript
-interface LabSummaryResponse {
-  labSlug: string;
-  trackSlug: string;
-  title: string;
-  learningGoal: string;
-  theory: string;
-  guidedSteps: LabGuidedStep[];
-  recommendedQuery: {
-    sql: string;
-    /** Values for $1..$n — clients MUST send these (or overrides) when running/explaining the guided query */
-    exampleParameters: unknown[];
-    paramHints: string[];
-    description: string;
-  };
-  recommendedCreateIndexSql: string;
-  recommendedDropIndexSql: string;
-  quizRequired: boolean;
-  dataset: {
-    family: string;
-    version: string;
-    recommendedTier: string[];
-  };
-  /** Present when optional benchmark is documented; omit or null if unused */
-  optionalBenchmarkNote?: string | null;
+interface GuidedSql {
+  sql: string;
+  /** Values for $1..$n — clients MUST send these (or overrides) when running/explaining */
+  exampleParameters: unknown[];
+  paramHints: string[];
+  description: string;
+}
+
+interface LabGuidedStepPayload {
+  /** SELECT / EXPLAIN — use for run_sql, run_explain, run_explain_analyze */
+  recommendedQuery?: GuidedSql;
+  /** DDL — use for create_index_sql, drop_index_sql with parameters: [] */
+  sql?: string;
 }
 
 interface LabGuidedStep {
@@ -56,6 +49,31 @@ interface LabGuidedStep {
     | 'compare_metrics'
     | 'take_quiz'
     | 'optional_benchmark';
+  /** Per-step Apply content; null when no SQL (compare_metrics, take_quiz, …) */
+  payload: LabGuidedStepPayload | null;
+}
+
+interface LabSummaryResponse {
+  labSlug: string;
+  trackSlug: string;
+  title: string;
+  learningGoal: string;
+  theory: string;
+  guidedSteps: LabGuidedStep[];
+  /**
+   * Compatibility field — derived from first matching step payload, else curriculum.
+   * New FE SHOULD use guidedSteps[i].payload instead.
+   */
+  recommendedQuery: GuidedSql;
+  recommendedCreateIndexSql: string;
+  recommendedDropIndexSql: string;
+  quizRequired: boolean;
+  dataset: {
+    family: string;
+    version: string;
+    recommendedTier: string[];
+  };
+  optionalBenchmarkNote?: string | null;
 }
 ```
 
@@ -63,54 +81,134 @@ interface LabGuidedStep {
 
 For `labSlug=index-playground`:
 
-- `recommendedQuery.sql` MUST be a parameterized equality filter on `users.email`
-- `recommendedQuery.exampleParameters` MUST be a non-empty array matching `$1..$n` (e.g. `["user1@example.com"]`) so FE/clients do not run with `parameters: []`
-- `recommendedCreateIndexSql` MUST create a B-Tree index on `users(email)`
-- `recommendedDropIndexSql` MUST drop that index
+- Steps with `run_sql` / `run_explain` / `run_explain_analyze` MUST expose `payload.recommendedQuery` with parameterized equality filter on `users.email` and non-empty `exampleParameters`
+- `create_index_sql` step MUST expose `payload.sql` creating a B-Tree index on `users(email)`
+- `drop_index_sql` step MUST expose `payload.sql` dropping that index
 - `guidedSteps` MUST include explain (or explain analyze) **before** and **after** create-index, plus create-index and run_sql steps
+- Top-level `recommendedQuery` / create / drop MUST still be populated (derived from steps) for older clients
 - `quizRequired` MUST be `true` while a quiz exists for the lab
-- Scan-type comparison instructions MUST point at Explain metrics (`rows_scanned`, `seq_scan_used`, `index_scan_used`), not plain SQL run metrics
+- Scan-type comparison instructions MUST point at Explain metrics (`rows_scanned`, `seq_scan_used`, `index_scan_used`)
 
-### FE usage — binding guided query parameters
+---
+
+## FE mapping — Guided path Apply buttons
+
+**Preferred (per step):**
+
+```typescript
+function resolveApplySql(step: LabGuidedStep): {
+  sql: string;
+  parameters: unknown[];
+} | null {
+  if (!step.payload) return null;
+
+  switch (step.action) {
+    case 'run_sql':
+    case 'run_explain':
+    case 'run_explain_analyze': {
+      const q = step.payload.recommendedQuery;
+      if (!q?.sql) return null;
+      return { sql: q.sql, parameters: q.exampleParameters ?? [] };
+    }
+    case 'create_index_sql':
+    case 'drop_index_sql': {
+      if (!step.payload.sql) return null;
+      return { sql: step.payload.sql, parameters: [] };
+    }
+    default:
+      return null;
+  }
+}
+
+// Apply query on step
+const apply = resolveApplySql(step);
+if (apply) {
+  await runSql({
+    sql: apply.sql,
+    parameters: apply.parameters,
+    // dataset, sessionId, context.labSlug = summary.labSlug
+  });
+}
+
+// Apply explain on step
+if (
+  step.action === 'run_explain' ||
+  step.action === 'run_explain_analyze'
+) {
+  const apply = resolveApplySql(step);
+  if (apply) {
+    await runExplain({
+      sql: apply.sql,
+      parameters: apply.parameters,
+      explainMode:
+        step.action === 'run_explain_analyze'
+          ? 'explain_analyze'
+          : 'explain',
+    });
+  }
+}
+```
+
+| `action` | Read from | `parameters` |
+|----------|-----------|-------------|
+| `run_sql` | `step.payload.recommendedQuery.sql` | `exampleParameters` |
+| `run_explain` / `run_explain_analyze` | same | same |
+| `create_index_sql` / `drop_index_sql` | `step.payload.sql` | `[]` |
+| `compare_metrics` / `take_quiz` / `optional_benchmark` | no Apply SQL | — |
 
 **Do not** inline the email into SQL. Keep `$1` and send bound parameters.
 
-When calling Experiment Runner or Explain Runner with `recommendedQuery.sql`:
+### Legacy fallback (optional)
+
+Older clients may still use top-level fields:
 
 ```typescript
-// From GET /labs/index-playground/summary → data.recommendedQuery
 const { sql, exampleParameters } = summary.recommendedQuery;
-
-await runSql({
-  sql, // "SELECT id, email, name FROM users WHERE email = $1"
-  parameters: exampleParameters, // ["user1@example.com"]
-  // ...dataset, sessionId, context.labSlug = "index-playground"
-});
-
-await runExplain({
-  sql,
-  parameters: exampleParameters, // same array — required
-  explainMode: 'explain_analyze',
-  // ...
-});
+const createSql = summary.recommendedCreateIndexSql;
+const dropSql = summary.recommendedDropIndexSql;
 ```
 
-| Field | FE must send |
-|-------|----------------|
-| `sql` | `recommendedQuery.sql` (unchanged, keep `$1`) |
-| `parameters` | `recommendedQuery.exampleParameters` (or user override of same length) |
-
-`CREATE INDEX` / `DROP INDEX` from summary use `parameters: []` (no placeholders).
-
 Running guided SELECT/EXPLAIN with `parameters: []` → sandbox `NON_PARAMETERIZED` / validation error.
+
+### Example response fragment
+
+```json
+{
+  "labSlug": "index-playground",
+  "guidedSteps": [
+    {
+      "order": 1,
+      "title": "Run the guided lookup (no index)",
+      "instruction": "...",
+      "action": "run_sql",
+      "payload": {
+        "recommendedQuery": {
+          "sql": "SELECT id, email, name FROM users WHERE email = $1",
+          "exampleParameters": ["user1@example.com"],
+          "paramHints": ["..."],
+          "description": "..."
+        }
+      }
+    },
+    {
+      "order": 3,
+      "action": "create_index_sql",
+      "payload": { "sql": "CREATE INDEX idx_users_email ON users (email)" }
+    }
+  ],
+  "recommendedQuery": { "sql": "SELECT ...", "exampleParameters": ["user1@example.com"], "...": "..." },
+  "recommendedCreateIndexSql": "CREATE INDEX idx_users_email ON users (email)",
+  "recommendedDropIndexSql": "DROP INDEX idx_users_email"
+}
+```
 
 ### Errors
 
 | ErrorCode | HTTP | When |
 |-----------|------|------|
 | `UNAUTHORIZED` | 401 | Missing/invalid token |
-| `NOT_FOUND` | 404 | Unknown lab slug, or no summary content registered for slug |
-| `FORBIDDEN` | 403 | Lab’s Track is not `active` |
+| `NOT_FOUND` | 404 | Unknown lab slug, or no curriculum for slug |
+| `FORBIDDEN` | 403 | Lab’s Track is not `active`, or lab `coming-soon` |
 
 ---
 
@@ -120,15 +218,13 @@ Running guided SELECT/EXPLAIN with `parameters: []` → sandbox `NON_PARAMETERIZ
 |------|----------------|-------|
 | Prepare dataset | Dataset Loader prepare/status | Use summary `dataset` hint; labSlug `index-playground` |
 | Provision session | Experiment Isolation | As required by runners |
-| Run guided SELECT / CREATE INDEX / DROP INDEX | Experiment Runner SQL | Sandbox allowlist; SQL from summary |
+| Run guided SELECT / CREATE INDEX / DROP INDEX | Experiment Runner SQL | SQL from **step.payload** (or legacy top-level) |
 | Explain before/after | Explain Runner | **Primary** source of `rows_scanned`, `seq_scan_used`, `index_scan_used` |
 | Metric history | Metrics Pipeline | Filter by lab / run ids from explain results |
 | Quiz | Quiz Engine `GET/POST /quizzes/labs/:labSlug` | Completion gate |
 | Optional benchmark | Benchmark Runner enqueue/status | P2 mention only; no Index-specific API |
 
 ### Explain metrics (comparison contract)
-
-Explain responses already enrich Metric Contract entries. For Index Playground before/after teaching, clients MUST treat these keys as the scan comparison surface:
 
 | key | Meaning for lab |
 |-----|-----------------|
@@ -143,4 +239,4 @@ Plain SQL experiment runs MAY omit scan keys (`omittedMetricKeys`); that is expe
 
 ## Shared types
 
-Place public summary types under `src/shared/labs/` (e.g. `lab-summary.ts`) and export via shared index per project convention. Controllers map to response DTOs without duplicating shapes.
+Public summary types live under `src/shared/labs/lab-summary.ts` (`LabSummaryResponse`, `LabGuidedStep`, `LabGuidedStepPayload`, `GuidedSql`) and export via shared index.

@@ -23,6 +23,7 @@ describe('GetTrackProgressUseCase', () => {
       title: 'Index Playground',
       description: null,
       sequenceOrder: 1,
+      status: 'active',
       trackId: 'track-1',
     },
     {
@@ -31,6 +32,7 @@ describe('GetTrackProgressUseCase', () => {
       title: 'Explain Analyze Lab',
       description: null,
       sequenceOrder: 2,
+      status: 'coming-soon',
       trackId: 'track-1',
     },
   ];

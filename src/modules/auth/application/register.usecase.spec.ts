@@ -49,6 +49,7 @@ describe('RegisterUseCase', () => {
       passwordHash: 'hashed',
       displayName: 'New User',
       role: Role.USER,
+      updatedBy: null,
       createdAt: new Date(),
       updatedAt: new Date(),
       refreshTokens: [],

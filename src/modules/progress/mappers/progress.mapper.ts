@@ -8,6 +8,7 @@ export class ProgressMapper {
       title: lab.title,
       description: lab.description,
       sequenceOrder: lab.sequenceOrder,
+      status: lab.status,
     };
   }
 

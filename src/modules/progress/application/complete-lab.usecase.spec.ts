@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ErrorCode, TrackStatus } from '@db-play/types';
+import { ErrorCode, LabStatus, TrackStatus } from '@db-play/types';
 import { DomainError } from '../../../common/errors/domain.error';
 import { CompleteLabUseCase } from './complete-lab.usecase';
 import { LabRepository } from '../infrastructure/lab.repository';
@@ -19,6 +19,7 @@ describe('CompleteLabUseCase', () => {
     description: null,
     trackId: 'track-1',
     sequenceOrder: 1,
+    status: LabStatus.ACTIVE,
     createdAt: new Date(),
     updatedAt: new Date(),
     completions: [],
@@ -148,6 +149,17 @@ describe('CompleteLabUseCase', () => {
     await expect(
       useCase.execute('user-1', 'index-playground'),
     ).rejects.toBeInstanceOf(DomainError);
+    await expect(
+      useCase.execute('user-1', 'index-playground'),
+    ).rejects.toMatchObject({ code: ErrorCode.FORBIDDEN });
+  });
+
+  it('throws FORBIDDEN when lab is coming-soon', async () => {
+    labRepository.findBySlug.mockResolvedValue({
+      ...activeLab,
+      status: LabStatus.COMING_SOON,
+    } as never);
+
     await expect(
       useCase.execute('user-1', 'index-playground'),
     ).rejects.toMatchObject({ code: ErrorCode.FORBIDDEN });

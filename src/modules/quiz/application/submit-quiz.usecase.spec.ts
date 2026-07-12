@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   ErrorCode,
+  LabStatus,
   QUIZ_COMPLETED_EVENT,
   TrackStatus,
 } from '@db-play/types';
@@ -23,6 +24,7 @@ describe('SubmitQuizUseCase', () => {
   const activeLab = {
     id: 'lab-1',
     slug: 'index-playground',
+    status: LabStatus.ACTIVE,
     track: { id: 'track-1', slug: 'database-sql', status: TrackStatus.ACTIVE },
   };
 

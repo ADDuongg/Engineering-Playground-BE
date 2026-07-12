@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ErrorCode, TrackStatus } from '@db-play/types';
+import { ErrorCode, LabStatus, TrackStatus } from '@db-play/types';
 import { DomainError } from '../../../common/errors/domain.error';
 import { LabRepository } from '../../progress/infrastructure/lab.repository';
 import { QuizRepository } from '../infrastructure/quiz.repository';
@@ -13,6 +13,7 @@ describe('GetQuizDefinitionUseCase', () => {
   const activeLab = {
     id: 'lab-1',
     slug: 'index-playground',
+    status: LabStatus.ACTIVE,
     track: { id: 'track-1', slug: 'database-sql', status: TrackStatus.ACTIVE },
   };
 

@@ -40,7 +40,7 @@ import { ResponseEnvelopeInterceptor } from '../../src/common/interceptors/respo
 import { PrepareDatasetUseCase } from '../../src/modules/dataset-loader/application/prepare-dataset.usecase';
 import { RunExperimentSqlUseCase } from '../../src/modules/experiment-runner/application/run-experiment-sql.usecase';
 import { RunExplainUseCase } from '../../src/modules/explain-runner/application/run-explain.usecase';
-import { INDEX_PLAYGROUND_CONTENT } from '../../src/modules/labs/infrastructure/lab-summary.content';
+import { INDEX_PLAYGROUND_SEED } from '../../src/modules/labs/infrastructure/index-playground.seed';
 import {
   DatasetTier,
   ErrorCode,
@@ -240,7 +240,7 @@ describeIfFullStack('Index Playground — SQL/explain loop (slow)', () => {
       // Ensure clean index state
       try {
         await runExperimentSql.execute({
-          sql: INDEX_PLAYGROUND_CONTENT.recommendedDropIndexSql,
+          sql: INDEX_PLAYGROUND_SEED.recommendedDropIndexSql,
           parameters: [],
           dataset,
           context: {
@@ -253,10 +253,10 @@ describeIfFullStack('Index Playground — SQL/explain loop (slow)', () => {
       }
 
       const guidedParams =
-        INDEX_PLAYGROUND_CONTENT.recommendedQuery.exampleParameters;
+        INDEX_PLAYGROUND_SEED.recommendedQuery.exampleParameters;
 
       const beforeExplain = await runExplain.execute({
-        sql: INDEX_PLAYGROUND_CONTENT.recommendedQuery.sql,
+        sql: INDEX_PLAYGROUND_SEED.recommendedQuery.sql,
         parameters: guidedParams,
         explainMode: ExplainMode.EXPLAIN_ANALYZE,
         dataset,
@@ -284,7 +284,7 @@ describeIfFullStack('Index Playground — SQL/explain loop (slow)', () => {
       );
 
       await runExperimentSql.execute({
-        sql: INDEX_PLAYGROUND_CONTENT.recommendedCreateIndexSql,
+        sql: INDEX_PLAYGROUND_SEED.recommendedCreateIndexSql,
         parameters: [],
         dataset,
         context: {
@@ -294,7 +294,7 @@ describeIfFullStack('Index Playground — SQL/explain loop (slow)', () => {
       });
 
       await runExperimentSql.execute({
-        sql: INDEX_PLAYGROUND_CONTENT.recommendedQuery.sql,
+        sql: INDEX_PLAYGROUND_SEED.recommendedQuery.sql,
         parameters: guidedParams,
         dataset,
         context: {
@@ -304,7 +304,7 @@ describeIfFullStack('Index Playground — SQL/explain loop (slow)', () => {
       });
 
       const afterExplain = await runExplain.execute({
-        sql: INDEX_PLAYGROUND_CONTENT.recommendedQuery.sql,
+        sql: INDEX_PLAYGROUND_SEED.recommendedQuery.sql,
         parameters: guidedParams,
         explainMode: ExplainMode.EXPLAIN_ANALYZE,
         dataset,
