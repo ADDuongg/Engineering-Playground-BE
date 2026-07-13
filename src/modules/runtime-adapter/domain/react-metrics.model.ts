@@ -1,14 +1,10 @@
+/**
+ * @deprecated Deterministic placeholder teaching model. Production uses
+ * react-test-renderer + Profiler via `executeReactFixture`. Kept for reference
+ * only — do not wire into ReactRuntimeAdapter.
+ */
 import { MetricContract, ReactExperimentInput } from '@db-play/types';
 import { reactMetric } from '../../metrics-pipeline/domain/react-metrics.catalog';
-
-/**
- * Deterministic teaching model that derives React Metric Contract values from a
- * guided-step scenario. This is a placeholder engine: it models the *shape* of
- * React behavior (renders, reconciliation, memo, stale closures) so the metrics
- * pipeline and Visualization Kit can be exercised end-to-end. Replace the body
- * with a real headless React profiler (react-reconciler / Profiler API) without
- * changing the adapter or the Metric Contract.
- */
 
 const RERENDER_TYPES = new Set(['click', 'setprops', 'setstate']);
 

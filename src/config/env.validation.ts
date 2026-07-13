@@ -87,4 +87,9 @@ export const envValidationSchema = Joi.object({
   SQL_EXECUTION_MAX_ATTEMPTS: Joi.number().min(1).max(10).default(2),
   SQL_EXECUTION_BACKOFF_MS: Joi.number().min(100).max(60000).default(1000),
   SQL_EXECUTION_MAX_INFLIGHT_PER_SESSION: Joi.number().min(1).max(10).default(1),
+
+  REACT_SANDBOX_TIMEOUT_MS: Joi.number().min(100).max(60000).default(5000),
+  REACT_SANDBOX_MAX_INTERACTIONS: Joi.number().min(1).max(500).default(50),
+  REACT_SANDBOX_MAX_ITEMS: Joi.number().min(1).max(10000).default(500),
+  REACT_SANDBOX_POLICY_VERSION: Joi.string().default('react-sandbox-v1'),
 });

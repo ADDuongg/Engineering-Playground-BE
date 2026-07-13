@@ -1817,7 +1817,7 @@ Notes:
 
 ## Feature: React Sandbox Runtime (Headless React)
 
-Status: In Progress  
+Status: Review  
 Priority: P0  
 Depends On:
 
@@ -1837,18 +1837,22 @@ Deliverables:
 
 Spec Folder:
 
-- _pending_
+- [specs/025-react-sandbox-runtime](../../specs/025-react-sandbox-runtime/)
 
 Checklist:
 
-- [ ] Specification created
-- [ ] Implemented
-- [ ] Tested
-- [ ] Documented
+- [x] Specification created
+- [x] Implemented
+- [x] Tested
+- [x] Documented
 
 Notes:
 
-- **Done so far**: registry/interface (`src/modules/runtime-adapter`), a **deterministic placeholder** adapter (`react-runtime.adapter.ts` + `react-metrics.model.ts`), and unit tests. **Pending**: swap the deterministic model for a real headless profiler and wire the HTTP endpoint.
+- Spec/plan/tasks/quickstart: [specs/025-react-sandbox-runtime](../../specs/025-react-sandbox-runtime/)
+- API: `POST /api/v1/experiments/react/run` (JWT required); built-in fixture IDs only; lab allowlist from guided steps
+- Real Profiler path via `react-test-renderer`; placeholder `deriveReactMetrics` deprecated
+- Fixtures: `rendering/counter`, `reconciliation/wrapper`, `keys/list`, `closure/stale-interval`, `hooks/order`
+- Tests: unit (`pnpm test -- runtime-adapter`) + `pnpm test:e2e -- react-sandbox-runtime` (4/4)
 
 ---
 

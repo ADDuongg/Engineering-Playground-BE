@@ -177,4 +177,13 @@ export default () => ({
       10,
     ),
   },
+  reactSandbox: {
+    timeoutMs: parseInt(process.env.REACT_SANDBOX_TIMEOUT_MS ?? '5000', 10),
+    maxInteractions: parseInt(
+      process.env.REACT_SANDBOX_MAX_INTERACTIONS ?? '50',
+      10,
+    ),
+    maxItems: parseInt(process.env.REACT_SANDBOX_MAX_ITEMS ?? '500', 10),
+    policyVersion: process.env.REACT_SANDBOX_POLICY_VERSION ?? 'react-sandbox-v1',
+  },
 });
