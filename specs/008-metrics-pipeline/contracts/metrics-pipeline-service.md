@@ -105,9 +105,18 @@ interface MetricHistoryResponse {
 
 ## Catalog resolution
 
+Catalogs are held in an open registry keyed by `metricCatalogId`, so new tracks
+register their own catalog without touching the resolver:
+
+| `metricCatalogId` | Track | Source |
+|-------------------|-------|--------|
+| `database-metrics` | Database / SQL | `database-metrics.catalog.ts` |
+| `react-metrics` | Frontend React | `react-metrics.catalog.ts` |
+
 1. Resolve `metricCatalogId` from Track Registry using `context.trackSlug` when provided.
 2. Default to `database-metrics` when track context absent (Database Track MVP fallback).
-3. Collectors emit only keys defined in resolved catalog.
+3. Collectors/adapters emit only keys defined in the resolved catalog; every emitted
+   metric still conforms to `MetricContract` (`key`, `label`, `unit`, `value`, `group`).
 
 ---
 

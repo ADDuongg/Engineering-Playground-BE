@@ -46,10 +46,14 @@ export interface AdminLabCurriculumView {
   labSlug: string;
   learningGoal: string;
   theory: string;
-  recommendedQuery: GuidedSql;
+  /** Database/SQL-only; null for non-SQL tracks. */
+  recommendedQuery: GuidedSql | null;
   recommendedCreateIndexSql: string | null;
   recommendedDropIndexSql: string | null;
-  dataset: LabSummaryDatasetHint;
+  /** Database/SQL-only; null for tracks without a playground dataset. */
+  dataset: LabSummaryDatasetHint | null;
+  /** Optional per-track lab-level metadata. */
+  config: Record<string, unknown> | null;
   quizRequired: boolean;
   optionalBenchmarkNote: string | null;
   createdAt: string;
@@ -59,10 +63,14 @@ export interface AdminLabCurriculumView {
 export interface CreateLabCurriculumRequest {
   learningGoal: string;
   theory: string;
-  recommendedQuery: GuidedSql;
+  /** Database/SQL-only; omit for non-SQL tracks. */
+  recommendedQuery?: GuidedSql | null;
   recommendedCreateIndexSql?: string | null;
   recommendedDropIndexSql?: string | null;
-  dataset: LabSummaryDatasetHint;
+  /** Database/SQL-only; omit for tracks without a playground dataset. */
+  dataset?: LabSummaryDatasetHint | null;
+  /** Optional per-track lab-level metadata. */
+  config?: Record<string, unknown> | null;
   quizRequired: boolean;
   optionalBenchmarkNote?: string | null;
 }
@@ -70,11 +78,12 @@ export interface CreateLabCurriculumRequest {
 export interface UpdateLabCurriculumRequest {
   learningGoal?: string;
   theory?: string;
-  recommendedQuery?: GuidedSql;
   /** `null` clears; omit leaves unchanged */
+  recommendedQuery?: GuidedSql | null;
   recommendedCreateIndexSql?: string | null;
   recommendedDropIndexSql?: string | null;
-  dataset?: LabSummaryDatasetHint;
+  dataset?: LabSummaryDatasetHint | null;
+  config?: Record<string, unknown> | null;
   quizRequired?: boolean;
   optionalBenchmarkNote?: string | null;
 }

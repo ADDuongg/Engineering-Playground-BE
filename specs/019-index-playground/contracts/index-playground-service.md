@@ -34,12 +34,17 @@ interface LabGuidedStepPayload {
   recommendedQuery?: GuidedSql;
   /** DDL — use for create_index_sql, drop_index_sql with parameters: [] */
   sql?: string;
+  /** React track only (headless React sandbox); see 022 for ReactScenarioPayload */
+  reactScenario?: Record<string, unknown>;
+  [key: string]: unknown;
 }
 
 interface LabGuidedStep {
   order: number;
   title: string;
   instruction: string;
+  // Index-playground uses the SQL verbs below; the full LabGuidedStepAction
+  // union (incl. React verbs) is canonical in 022-lab-flow-admin.
   action:
     | 'run_sql'
     | 'run_explain'
@@ -68,11 +73,14 @@ interface LabSummaryResponse {
   recommendedCreateIndexSql: string;
   recommendedDropIndexSql: string;
   quizRequired: boolean;
-  dataset: {
+  /** Database/SQL-only; null/omitted for tracks without a playground dataset (e.g. React). */
+  dataset?: {
     family: string;
     version: string;
     recommendedTier: string[];
-  };
+  } | null;
+  /** Optional per-track lab-level metadata. */
+  config?: Record<string, unknown> | null;
   optionalBenchmarkNote?: string | null;
 }
 ```

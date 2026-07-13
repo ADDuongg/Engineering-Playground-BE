@@ -28,8 +28,8 @@ export class LabSummaryCurriculumEntity {
   @Column({ type: 'text' })
   theory!: string;
 
-  @Column({ name: 'recommended_query', type: 'jsonb' })
-  recommendedQuery!: GuidedSql;
+  @Column({ name: 'recommended_query', type: 'jsonb', nullable: true })
+  recommendedQuery!: GuidedSql | null;
 
   @Column({ name: 'recommended_create_index_sql', type: 'text', nullable: true })
   recommendedCreateIndexSql!: string | null;
@@ -37,8 +37,12 @@ export class LabSummaryCurriculumEntity {
   @Column({ name: 'recommended_drop_index_sql', type: 'text', nullable: true })
   recommendedDropIndexSql!: string | null;
 
-  @Column({ type: 'jsonb' })
-  dataset!: LabSummaryDatasetHint;
+  @Column({ type: 'jsonb', nullable: true })
+  dataset!: LabSummaryDatasetHint | null;
+
+  /** Optional per-track lab-level metadata (Track-agnostic extension point). */
+  @Column({ type: 'jsonb', nullable: true })
+  config!: Record<string, unknown> | null;
 
   @Column({ name: 'quiz_required', type: 'boolean', default: false })
   quizRequired!: boolean;

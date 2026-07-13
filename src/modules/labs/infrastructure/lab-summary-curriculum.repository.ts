@@ -8,10 +8,11 @@ export interface CreateLabCurriculumData {
   labId: string;
   learningGoal: string;
   theory: string;
-  recommendedQuery: GuidedSql;
+  recommendedQuery: GuidedSql | null;
   recommendedCreateIndexSql: string | null;
   recommendedDropIndexSql: string | null;
-  dataset: LabSummaryDatasetHint;
+  dataset: LabSummaryDatasetHint | null;
+  config: Record<string, unknown> | null;
   quizRequired: boolean;
   optionalBenchmarkNote: string | null;
 }

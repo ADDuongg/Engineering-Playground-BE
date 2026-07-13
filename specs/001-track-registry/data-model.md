@@ -38,7 +38,9 @@
 |------|------|--------|---------------|-----------------|---------------|-------------------|----------------------|
 | `database-sql` | Database / SQL | active | 1 | playground_postgresql | sql_editor | database-metrics | database-viz |
 | `caching-concurrency` | Caching & Concurrency | coming-soon | 2 | playground_redis | command_panel | redis-metrics | redis-viz |
-| `frontend-performance` | Frontend Performance | coming-soon | 3 | headless_react_sandbox | component_sandbox | react-metrics | react-viz |
+| `frontend-react` | Frontend React | active | 3 | headless_react_sandbox | component_sandbox | react-metrics | react-viz |
+
+> **Note**: The original MVP seed included a `frontend-performance` placeholder (`coming-soon`). It was consolidated into the active `frontend-react` track (React Fundamentals: rendering, reconciliation, keys, closures, hooks). React labs store executable step content in `lab_guided_steps.payload.reactScenario` and leave the SQL-only curriculum columns (`recommended_query`, `dataset`) `NULL`.
 
 ## Relationships
 

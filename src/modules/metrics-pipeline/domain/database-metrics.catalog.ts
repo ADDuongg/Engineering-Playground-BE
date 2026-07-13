@@ -1,3 +1,5 @@
+import { REACT_METRICS_CATALOG } from './react-metrics.catalog';
+
 export type MetricSource = 'execution' | 'explain' | 'combined' | 'benchmark';
 
 export interface MetricCatalogEntry {
@@ -109,8 +111,14 @@ export const DATABASE_METRICS_CATALOG: MetricCatalogEntry[] = [
   },
 ];
 
+/**
+ * Metric Catalog registry. Each Track registers its catalog here by id; adding
+ * a new Track (React, Redis, Kafka, Docker, …) only appends an entry — no
+ * lifecycle changes. Keep in sync with the `metric_catalog_id` seeded per track.
+ */
 const CATALOGS: Record<string, MetricCatalogEntry[]> = {
   'database-metrics': DATABASE_METRICS_CATALOG,
+  'react-metrics': REACT_METRICS_CATALOG,
 };
 
 export function resolveMetricCatalog(catalogId?: string): MetricCatalogEntry[] {

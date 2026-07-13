@@ -1,6 +1,6 @@
 # BACKLOG
 
-Version: 1.5
+Version: 1.6
 
 Status: Active
 
@@ -16,14 +16,14 @@ Content is organized as **Track → Category → Lab → Experiment**.
 
 | Level | Role |
 | ----- | ---- |
-| **Track** | Learning domain — **Phase 1:** Database/SQL · **Phase 2:** Caching & Concurrency |
+| **Track** | Learning domain — **Phase 1:** Database/SQL · **Phase 2:** Caching & Concurrency · **Phase 3:** Frontend React |
 | **Category** | Group within a Track (indexes, cache patterns, …) |
 | **Lab** | Smallest learning unit; teaches one concept |
 | **Experiment** | Input → Runtime Adapter → Metric Contract → (FE visualization) |
 
 Each Track declares a **Runtime Adapter**, **Input Surface**, **Metric Catalog**, and **Visualization Kit** (metadata for FE). Backend owns adapters, metrics, and lab APIs.
 
-Active backlog covers **Phase 1 and 2** only. MVP ships **Phase 1 — Database / SQL** first. Phase 4 (Frontend Performance Track) is out of scope for this BE backlog.
+Active backlog covers **Phase 1, 2, and 3** (Frontend React). MVP ships **Phase 1 — Database / SQL** first. **Phase 3 — Frontend React** supersedes the former Phase 4 "Frontend Performance" placeholder (the empty `frontend-performance` track was consolidated into the active `frontend-react` track). Phases 5–6 and Future epics remain out of scope for this BE backlog.
 
 ---
 
@@ -39,7 +39,7 @@ Active backlog covers **Phase 1 and 2** only. MVP ships **Phase 1 — Database /
 
 **MVP target** (ROADMAP §4–5): **Phase 1 — Database / SQL** — P0/P1 through Benchmark Lab APIs + Learning Platform APIs + **Admin / Content Ops** (so later labs are content-driven) + Index / EXPLAIN / Offset lab backends.
 
-**In-scope phases**: 1 (Database), 2 (Caching). Phases 3, 4, 5, 6 and Future epics are out of scope for this backlog.
+**In-scope phases**: 1 (Database), 2 (Caching), 3 (Frontend React). Phases 4, 5, 6 and Future epics are out of scope for this backlog.
 
 **Priority legend**
 
@@ -1764,12 +1764,291 @@ Checklist:
 
 ---
 
+# Phase 3 — Track: Frontend React
+
+Theme: Teach how React works under the hood — rendering, reconciliation, keys, and closures — through hands-on component experiments executed in a **Headless React Sandbox Runtime Adapter**. Metrics originate from the Backend adapter (react-test-renderer / react-reconciler + Profiler); **never computed in the FE** (DOMAIN §Metric Contract, §Runtime Adapter). Input Surface is the FE component sandbox; Backend owns the adapter, `react-metrics` catalog, and lab APIs.
+
+This phase supersedes the former Phase 4 "Frontend Performance" placeholder. The `frontend-react` track (display order 3, `active`) is already registered and seeded; remaining work is the real headless runtime and per-lab content/quizzes.
+
+## Epic: Runtime Adapters (React)
+
+Frontend React Track infrastructure — Headless React Sandbox Runtime Adapter and the shared track scaffolding (DOMAIN §Runtime Adapter).
+
+---
+
+## Feature: Frontend React Track Bootstrap
+
+Status: Done  
+Priority: P0  
+Depends On:
+
+- Track Registry
+- Metrics Pipeline
+- Lab Flow Admin
+
+Goal:  
+Register the `frontend-react` track and seed its labs, curriculum, guided steps, and metric catalog so lab content is available end-to-end.
+
+Deliverables:
+
+- `frontend-react` track row (`active`, `headless_react_sandbox`, `component_sandbox`, `react-metrics`, `react-viz`)
+- Five seeded labs (Rendering, Reconciliation, Keys, Closure, Hooks) with curriculum, guided steps (`reactScenario` payloads), and minimal quizzes
+- `react-metrics` catalog registered in the open Metric Catalog registry
+- Curriculum decoupled from SQL (`recommended_query`/`dataset` nullable + `config jsonb`) so non-SQL tracks store logic in step payloads
+- Spec contracts updated (001 track-registry, 008 metrics-pipeline, 019 index-playground, 022 lab-flow-admin)
+
+Spec Folder:
+
+- _pending (consolidate 001/008/019/022 contract deltas into a React track spec)_
+
+Checklist:
+
+- [x] Specification created _(contract deltas only; dedicated spec pending)_
+- [x] Implemented
+- [x] Tested _(unit)_
+- [ ] Documented _(dedicated spec folder)_
+
+Notes:
+
+- Migrations: `1731100000000-SeedFrontendReactTrack`, `1731200000000-RemoveFrontendPerformancePlaceholderTrack`, `1731300000000-DecoupleLabCurriculumFromSql`
+- Guided-step actions extended with React verbs (`render_component`, `update_props`, `update_state`, `remount`, `toggle_memo`, `compare_reconciliation`, `inspect_hooks`)
+
+---
+
+## Feature: React Sandbox Runtime (Headless React)
+
+Status: In Progress  
+Priority: P0  
+Depends On:
+
+- Frontend React Track Bootstrap
+- Metrics Pipeline
+
+Goal:  
+Provide the Headless React Sandbox Runtime Adapter that executes React scenarios and emits the `react-metrics` Metric Contract, resolvable through the Runtime Adapter registry by track slug (ROADMAP §Frontend React Track).
+
+Deliverables:
+
+- `RuntimeAdapter` implementation (`type: headless_react_sandbox`) registered in the Runtime Adapter registry and dispatched by the track-agnostic `RunExperimentUseCase`
+- Real headless React execution (react-test-renderer / react-reconciler + Profiler) per scenario input (`componentSource`, `props`, `interactions`, `options.memo`, `options.keyStrategy`)
+- Metric Contract output from `react-metrics`: `render_count`, `commit_duration_ms`, `component_tree_depth`, `nodes_reused`, `nodes_remounted`, `dom_mutations`, `remount_count`, `memo_hit_rate`, `effect_run_count`, `captured_value`, `stale_reads`
+- HTTP entry point (e.g. `POST /experiments/react/run`) resolving the adapter by track slug
+- Timeouts / resource limits for scenario execution; no dependency on Playground PostgreSQL
+
+Spec Folder:
+
+- _pending_
+
+Checklist:
+
+- [ ] Specification created
+- [ ] Implemented
+- [ ] Tested
+- [ ] Documented
+
+Notes:
+
+- **Done so far**: registry/interface (`src/modules/runtime-adapter`), a **deterministic placeholder** adapter (`react-runtime.adapter.ts` + `react-metrics.model.ts`), and unit tests. **Pending**: swap the deterministic model for a real headless profiler and wire the HTTP endpoint.
+
+---
+
+## Epic: Frontend React Track Labs
+
+Hands-on labs in the Frontend React Track; each teaches one measurable React internal via the Headless React Sandbox. Author lab summary, guided steps, and quizzes via **Admin / Content Ops**. All four in-scope labs share the same dependencies (React Sandbox Runtime, Metrics Pipeline, Lab Flow Admin, Quiz Admin CRUD) and are currently **seeded with deterministic metrics** — each becomes Done when backed by the real runtime plus finalized quiz content.
+
+---
+
+## Feature: Rendering Lab
+
+Status: In Progress  
+Priority: P1  
+Depends On:
+
+- React Sandbox Runtime
+- Metrics Pipeline
+- Lab Flow Admin
+- Quiz Admin CRUD
+
+Goal:  
+Teach when and why a component re-renders (state vs props updates) and the cost of a commit (ROADMAP §Frontend React, React Fundamentals §Rendering).
+
+Deliverables:
+
+- Guided flow: mount → `update_state` → `update_props` → `compare_metrics` → `take_quiz`
+- Metrics: `render_count`, `commit_duration_ms`, `component_tree_depth`
+- Quiz validating "state/props change → re-render" mental model
+
+Spec Folder:
+
+- _pending_
+
+Checklist:
+
+- [ ] Specification created
+- [ ] Implemented
+- [ ] Tested
+- [ ] Documented
+
+Notes:
+
+- Seeded as lab `react-rendering` (scenario `rendering/counter`)
+
+---
+
+## Feature: Reconciliation Lab
+
+Status: In Progress  
+Priority: P1  
+Depends On:
+
+- React Sandbox Runtime
+- Metrics Pipeline
+- Lab Flow Admin
+- Quiz Admin CRUD
+
+Goal:  
+Show how React diffs the element tree — same-type update (reuse nodes) vs type change (unmount/remount) (React Fundamentals §Reconciliation).
+
+Deliverables:
+
+- Guided flow: render baseline → `compare_reconciliation` (keep type vs change type) → `compare_metrics` → `take_quiz`
+- Metrics: `nodes_reused`, `nodes_remounted`, `dom_mutations`
+- Quiz validating the reuse-vs-remount rule
+
+Spec Folder:
+
+- _pending_
+
+Checklist:
+
+- [ ] Specification created
+- [ ] Implemented
+- [ ] Tested
+- [ ] Documented
+
+Notes:
+
+- Seeded as lab `react-reconciliation` (scenario `reconciliation/wrapper`)
+
+---
+
+## Feature: Keys Lab
+
+Status: In Progress  
+Priority: P1  
+Depends On:
+
+- React Sandbox Runtime
+- Metrics Pipeline
+- Lab Flow Admin
+- Quiz Admin CRUD
+
+Goal:  
+Demonstrate how list keys affect identity on reorder — index keys vs stable keys — and the impact on DOM mutations and preserved local state (React Fundamentals §Keys).
+
+Deliverables:
+
+- Guided flow: render with `keyStrategy: index` → reorder with `keyStrategy: stable` → `compare_metrics` → `take_quiz`
+- Metrics: `dom_mutations`, `remount_count`
+- Quiz validating "stable keys preserve identity/state on reorder"
+
+Spec Folder:
+
+- _pending_
+
+Checklist:
+
+- [ ] Specification created
+- [ ] Implemented
+- [ ] Tested
+- [ ] Documented
+
+Notes:
+
+- Seeded as lab `react-keys` (scenario `keys/list`)
+
+---
+
+## Feature: Closure Lab
+
+Status: In Progress  
+Priority: P1  
+Depends On:
+
+- React Sandbox Runtime
+- Metrics Pipeline
+- Lab Flow Admin
+- Quiz Admin CRUD
+
+Goal:  
+Explain stale closures — how a handler/effect captures the value from its render, and why stale reads happen without correct dependencies (React Fundamentals §Closure).
+
+Deliverables:
+
+- Guided flow: render → interactions capturing state → `inspect_hooks` / `compare_metrics` → `take_quiz`
+- Metrics: `captured_value`, `stale_reads`, `effect_run_count`
+- Quiz validating captured-vs-latest value reasoning
+
+Spec Folder:
+
+- _pending_
+
+Checklist:
+
+- [ ] Specification created
+- [ ] Implemented
+- [ ] Tested
+- [ ] Documented
+
+Notes:
+
+- Seeded as lab `react-closure`
+
+---
+
+## Feature: Hooks Lab
+
+Status: Deferred  
+Priority: P2  
+Depends On:
+
+- React Sandbox Runtime
+- Metrics Pipeline
+- Lab Flow Admin
+- Quiz Admin CRUD
+
+Goal:  
+Teach hooks rules and effect scheduling (dependency arrays, effect run counts). Seeded but **deferred** — not part of the current in-scope set (Rendering, Reconciliation, Keys, Closure).
+
+Deliverables:
+
+- Guided flow around effect dependencies and re-run behavior
+- Metrics: `effect_run_count` (plus hooks-group metrics)
+
+Spec Folder:
+
+- _pending_
+
+Checklist:
+
+- [ ] Specification created
+- [ ] Implemented
+- [ ] Tested
+- [ ] Documented
+
+Notes:
+
+- Seeded as lab `react-hooks`; keep or split when Closure/Hooks scope is finalized
+
+---
+
 ## Release Milestones
 
 | Milestone | Target              | Backlog scope (backend)                                              |
 | --------- | ------------------- | -------------------------------------------------------------------- |
 | MVP       | Phase 1 complete    | Database/SQL APIs: auth → run SQL → reset → EXPLAIN → benchmark → core lab backends |
 | Beta      | Phase 1 + Phase 2   | Database + Caching & Concurrency (Redis, transactions, isolation) APIs |
+| React     | Phase 3 complete    | Frontend React: Headless React Sandbox Runtime + Rendering/Reconciliation/Keys/Closure lab APIs |
 
 ---
 
@@ -1802,6 +2081,12 @@ Link completed specs here for traceability (update **Spec Folder** in each featu
 | Lab Flow Admin                | specs/022-lab-flow-admin              | Review |
 | Quiz Admin CRUD               | specs/023-quiz-admin-crud             | Review |
 | User Admin                    | specs/024-user-admin                  | Review |
+| Frontend React Track Bootstrap | _pending (001/008/019/022 deltas)_   | Done   |
+| React Sandbox Runtime         | _pending_                             | Todo   |
+| Rendering Lab                 | _pending_                             | Todo   |
+| Reconciliation Lab            | _pending_                             | Todo   |
+| Keys Lab                      | _pending_                             | Todo   |
+| Closure Lab                   | _pending_                             | Todo   |
 | _add rows as specs are created_ | | |
 
 ---
@@ -1812,7 +2097,12 @@ Admin / Content Ops first so later labs are content-driven; then remaining Datab
 
 | Order | Feature              | Epic                 | Status |
 | ----- | -------------------- | -------------------- | ------ |
-| 1     | User Admin           | Admin / Content Ops  | Review |
-| 2     | Explain Analyze Lab  | Database Track Labs  | Todo (needs Quiz Admin CRUD) |
-| 3     | Offset vs Cursor Lab | Database Track Labs  | Todo (needs Quiz Admin CRUD) |
-| 4     | Benchmark Lab        | Database Track Labs  | Todo |
+| 1     | React Sandbox Runtime | Runtime Adapters (React) | Todo (deterministic placeholder done; real headless profiler + endpoint) |
+| 2     | Rendering Lab        | Frontend React Track Labs | Todo (seeded; needs real runtime + quiz) |
+| 3     | Reconciliation Lab   | Frontend React Track Labs | Todo |
+| 4     | Keys Lab             | Frontend React Track Labs | Todo |
+| 5     | Closure Lab          | Frontend React Track Labs | Todo |
+| 6     | User Admin           | Admin / Content Ops  | Review |
+| 7     | Explain Analyze Lab  | Database Track Labs  | Todo (needs Quiz Admin CRUD) |
+| 8     | Offset vs Cursor Lab | Database Track Labs  | Todo (needs Quiz Admin CRUD) |
+| 9     | Benchmark Lab        | Database Track Labs  | Todo |

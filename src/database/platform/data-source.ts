@@ -23,6 +23,9 @@ import { AddLabStatusAndBackfill1730700000000 } from '../migrations/173070000000
 import { CreateLabFlowTablesAndSeedIndexPlayground1730800000000 } from '../migrations/1730800000000-CreateLabFlowTablesAndSeedIndexPlayground';
 import { BackfillIndexPlaygroundStepSqlPayloads1730900000000 } from '../migrations/1730900000000-BackfillIndexPlaygroundStepSqlPayloads';
 import { AddUserUpdatedBy1731000000000 } from '../migrations/1731000000000-AddUserUpdatedBy';
+import { SeedFrontendReactTrack1731100000000 } from '../migrations/1731100000000-SeedFrontendReactTrack';
+import { RemoveFrontendPerformancePlaceholderTrack1731200000000 } from '../migrations/1731200000000-RemoveFrontendPerformancePlaceholderTrack';
+import { DecoupleLabCurriculumFromSql1731300000000 } from '../migrations/1731300000000-DecoupleLabCurriculumFromSql';
 import { loadMonorepoEnv } from '../../config/load-env';
 
 loadMonorepoEnv();
@@ -60,6 +63,9 @@ export default new DataSource({
     CreateLabFlowTablesAndSeedIndexPlayground1730800000000,
     BackfillIndexPlaygroundStepSqlPayloads1730900000000,
     AddUserUpdatedBy1731000000000,
+    SeedFrontendReactTrack1731100000000,
+    RemoveFrontendPerformancePlaceholderTrack1731200000000,
+    DecoupleLabCurriculumFromSql1731300000000,
   ],
   synchronize: false,
 });

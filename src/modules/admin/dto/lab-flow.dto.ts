@@ -107,9 +107,11 @@ export class CreateLabCurriculumDto {
   @MinLength(1)
   theory!: string;
 
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
   @ValidateNested()
   @Type(() => GuidedSqlDto)
-  recommendedQuery!: GuidedSqlDto;
+  recommendedQuery?: GuidedSqlDto | null;
 
   @IsOptional()
   @ValidateIf((_, value) => value !== null)
@@ -121,9 +123,16 @@ export class CreateLabCurriculumDto {
   @IsString()
   recommendedDropIndexSql?: string | null;
 
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
   @ValidateNested()
   @Type(() => LabSummaryDatasetHintDto)
-  dataset!: LabSummaryDatasetHintDto;
+  dataset?: LabSummaryDatasetHintDto | null;
+
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
+  @IsObject()
+  config?: Record<string, unknown> | null;
 
   @IsBoolean()
   quizRequired!: boolean;
@@ -146,9 +155,10 @@ export class UpdateLabCurriculumDto {
   theory?: string;
 
   @IsOptional()
+  @ValidateIf((_, value) => value !== null)
   @ValidateNested()
   @Type(() => GuidedSqlDto)
-  recommendedQuery?: GuidedSqlDto;
+  recommendedQuery?: GuidedSqlDto | null;
 
   @IsOptional()
   @ValidateIf((_, value) => value !== null)
@@ -161,9 +171,15 @@ export class UpdateLabCurriculumDto {
   recommendedDropIndexSql?: string | null;
 
   @IsOptional()
+  @ValidateIf((_, value) => value !== null)
   @ValidateNested()
   @Type(() => LabSummaryDatasetHintDto)
-  dataset?: LabSummaryDatasetHintDto;
+  dataset?: LabSummaryDatasetHintDto | null;
+
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
+  @IsObject()
+  config?: Record<string, unknown> | null;
 
   @IsOptional()
   @IsBoolean()

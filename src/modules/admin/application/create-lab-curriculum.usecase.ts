@@ -43,10 +43,11 @@ export class CreateLabCurriculumUseCase {
       labId: lab.id,
       learningGoal: input.learningGoal,
       theory: input.theory,
-      recommendedQuery: input.recommendedQuery,
+      recommendedQuery: input.recommendedQuery ?? null,
       recommendedCreateIndexSql: input.recommendedCreateIndexSql ?? null,
       recommendedDropIndexSql: input.recommendedDropIndexSql ?? null,
-      dataset: input.dataset,
+      dataset: input.dataset ?? null,
+      config: input.config ?? null,
       quizRequired: input.quizRequired,
       optionalBenchmarkNote: input.optionalBenchmarkNote ?? null,
     });

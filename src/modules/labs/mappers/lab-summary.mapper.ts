@@ -126,10 +126,13 @@ export function toLabSummaryResponse(
     recommendedCreateIndexSql: topLevel.recommendedCreateIndexSql,
     recommendedDropIndexSql: topLevel.recommendedDropIndexSql,
     quizRequired,
-    dataset: {
-      ...curriculum.dataset,
-      recommendedTier: [...curriculum.dataset.recommendedTier],
-    },
+    dataset: curriculum.dataset
+      ? {
+          ...curriculum.dataset,
+          recommendedTier: [...curriculum.dataset.recommendedTier],
+        }
+      : null,
+    config: curriculum.config ?? null,
     optionalBenchmarkNote: curriculum.optionalBenchmarkNote ?? null,
   };
 }

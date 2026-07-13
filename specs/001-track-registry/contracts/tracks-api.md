@@ -55,6 +55,13 @@ interface TrackSummary {
         "description": "Explore Redis caching patterns, transactions, isolation, and deadlocks.",
         "status": "coming-soon",
         "displayOrder": 2
+      },
+      {
+        "slug": "frontend-react",
+        "name": "Frontend React",
+        "description": "Learn how React works under the hood: rendering, reconciliation, keys, closures, and hooks through hands-on component experiments.",
+        "status": "active",
+        "displayOrder": 3
       }
     ]
   },

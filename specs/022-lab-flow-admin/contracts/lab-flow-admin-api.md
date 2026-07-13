@@ -24,14 +24,24 @@ Same as [Admin AuthZ](../../020-admin-authz/contracts/admin-authz-api.md):
 
 ```typescript
 type LabGuidedStepAction =
+  // Database / SQL track
   | 'run_sql'
   | 'run_explain'
   | 'run_explain_analyze'
   | 'create_index_sql'
   | 'drop_index_sql'
+  | 'optional_benchmark'
+  // Frontend React track (headless React sandbox runtime)
+  | 'render_component'
+  | 'update_props'
+  | 'update_state'
+  | 'remount'
+  | 'toggle_memo'
+  | 'compare_reconciliation'
+  | 'inspect_hooks'
+  // Track-agnostic
   | 'compare_metrics'
-  | 'take_quiz'
-  | 'optional_benchmark';
+  | 'take_quiz';
 
 interface GuidedSql {
   sql: string;
@@ -39,6 +49,19 @@ interface GuidedSql {
   exampleParameters: unknown[];
   paramHints: string[];
   description: string;
+}
+
+/**
+ * Per-step React scenario (headless React sandbox). Executable "logic" for
+ * React guided steps lives here — never in the curriculum SQL/dataset columns.
+ */
+interface ReactScenarioPayload {
+  scenarioId?: string;
+  componentSource?: string;
+  props?: Record<string, unknown>;
+  interactions?: unknown[];
+  options?: { memo?: boolean; keyStrategy?: 'index' | 'stable'; [key: string]: unknown };
+  description?: string;
 }
 
 /**
@@ -50,6 +73,9 @@ interface LabGuidedStepPayload {
   recommendedQuery?: GuidedSql;
   /** DDL string (create_index_sql, drop_index_sql) — use with parameters: [] */
   sql?: string;
+  /** React scenario (render_component, inspect_hooks, compare_reconciliation, …) */
+  reactScenario?: ReactScenarioPayload;
+  [key: string]: unknown;
 }
 
 interface LabGuidedStep {
@@ -84,7 +110,10 @@ interface LabSummaryResponse {
   recommendedCreateIndexSql: string;
   recommendedDropIndexSql: string;
   quizRequired: boolean;
-  dataset: LabSummaryDatasetHint;
+  /** Database/SQL-only; omitted/null for tracks without a playground dataset (e.g. React). */
+  dataset?: LabSummaryDatasetHint | null;
+  /** Optional per-track lab-level metadata. */
+  config?: Record<string, unknown> | null;
   optionalBenchmarkNote?: string | null;
 }
 
@@ -127,10 +156,14 @@ interface AdminLabCurriculumView {
   labSlug: string;
   learningGoal: string;
   theory: string;
-  recommendedQuery: GuidedSql;
+  /** Database/SQL-only; null for non-SQL tracks. */
+  recommendedQuery: GuidedSql | null;
   recommendedCreateIndexSql: string | null;
   recommendedDropIndexSql: string | null;
-  dataset: LabSummaryDatasetHint;
+  /** Database/SQL-only; null for tracks without a playground dataset. */
+  dataset: LabSummaryDatasetHint | null;
+  /** Optional per-track lab-level metadata. */
+  config: Record<string, unknown> | null;
   quizRequired: boolean;
   optionalBenchmarkNote: string | null;
   createdAt: string;
@@ -140,10 +173,14 @@ interface AdminLabCurriculumView {
 interface CreateLabCurriculumRequest {
   learningGoal: string;
   theory: string;
-  recommendedQuery: GuidedSql;
+  /** Database/SQL-only; omit for non-SQL tracks. */
+  recommendedQuery?: GuidedSql | null;
   recommendedCreateIndexSql?: string | null;
   recommendedDropIndexSql?: string | null;
-  dataset: LabSummaryDatasetHint;
+  /** Database/SQL-only; omit for tracks without a playground dataset. */
+  dataset?: LabSummaryDatasetHint | null;
+  /** Optional per-track lab-level metadata. */
+  config?: Record<string, unknown> | null;
   quizRequired: boolean;
   optionalBenchmarkNote?: string | null;
 }
@@ -151,14 +188,20 @@ interface CreateLabCurriculumRequest {
 interface UpdateLabCurriculumRequest {
   learningGoal?: string;
   theory?: string;
-  recommendedQuery?: GuidedSql;
+  recommendedQuery?: GuidedSql | null; // null clears
   recommendedCreateIndexSql?: string | null; // null clears
   recommendedDropIndexSql?: string | null;
-  dataset?: LabSummaryDatasetHint;
+  dataset?: LabSummaryDatasetHint | null; // null clears
+  config?: Record<string, unknown> | null; // null clears
   quizRequired?: boolean;
   optionalBenchmarkNote?: string | null;
 }
 ```
+
+> **Multi-track note**: `recommendedQuery` and `dataset` are Database/SQL-only and
+> are `null`/omitted for non-SQL tracks (React, Redis, …). React labs put their
+> executable content in `guidedSteps[].payload.reactScenario`; optional lab-level
+> metadata goes in `config`.
 
 ---
 
@@ -175,6 +218,16 @@ interface UpdateLabCurriculumRequest {
 | `create_index_sql` | `step.payload.sql` | Experiment Runner: `sql`, `parameters: []` |
 | `drop_index_sql` | `step.payload.sql` | Experiment Runner: `sql`, `parameters: []` |
 | `compare_metrics` / `take_quiz` / `optional_benchmark` | `payload` usually `null` | Use Metrics / Quiz / Benchmark APIs (no step SQL) |
+
+### Payload by `action` (Frontend React track)
+
+| `action` | FE Apply source | Runner |
+|----------|-----------------|--------|
+| `render_component` / `update_props` / `update_state` / `remount` | `step.payload.reactScenario` | Headless React sandbox (React Runtime Adapter) → React metrics |
+| `compare_reconciliation` | `step.payload.reactScenario` (`options.keyStrategy`) | same |
+| `toggle_memo` | `step.payload.reactScenario` (`options.memo`) | same |
+| `inspect_hooks` | `step.payload.reactScenario` | same |
+| `compare_metrics` / `take_quiz` | `payload` usually `null` | Metrics / Quiz APIs |
 
 ### Example `guidedSteps` slice (index-playground)
 

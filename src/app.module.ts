@@ -22,6 +22,7 @@ import { TracksModule } from './modules/tracks/tracks.module';
 import { SqlSandboxModule } from './modules/sql-sandbox/sql-sandbox.module';
 import { DatasetLoaderModule } from './modules/dataset-loader/dataset-loader.module';
 import { ExperimentRunnerModule } from './modules/experiment-runner/experiment-runner.module';
+import { RuntimeAdapterModule } from './modules/runtime-adapter/runtime-adapter.module';
 import { ExplainRunnerModule } from './modules/explain-runner/explain-runner.module';
 import { ExperimentIsolationModule } from './modules/experiment-isolation/experiment-isolation.module';
 import { MetricsPipelineModule } from './modules/metrics-pipeline/metrics-pipeline.module';
@@ -76,6 +77,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     SqlSandboxModule,
     DatasetLoaderModule,
     ExperimentRunnerModule,
+    RuntimeAdapterModule,
     ExplainRunnerModule,
     ExperimentIsolationModule,
     MetricsPipelineModule,

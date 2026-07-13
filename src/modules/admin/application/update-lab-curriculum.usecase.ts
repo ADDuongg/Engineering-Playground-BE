@@ -73,6 +73,9 @@ export class UpdateLabCurriculumUseCase {
     if (input.dataset !== undefined) {
       patch.dataset = input.dataset;
     }
+    if (input.config !== undefined) {
+      patch.config = input.config;
+    }
     if (input.quizRequired !== undefined) {
       patch.quizRequired = input.quizRequired;
     }

@@ -130,7 +130,7 @@ describe('GetLabSummaryUseCase', () => {
     ]);
     expect(result.recommendedCreateIndexSql).toMatch(/users\s*\(\s*email\s*\)/i);
     expect(result.quizRequired).toBe(true);
-    expect(result.dataset.family).toBe('commerce');
+    expect(result.dataset?.family).toBe('commerce');
   });
 
   it('derives top-level SQL from step payloads over curriculum when present', async () => {

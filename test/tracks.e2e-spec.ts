@@ -33,10 +33,10 @@ describe('Tracks (e2e)', () => {
         displayOrder: 2,
       },
       {
-        slug: 'frontend-performance',
-        name: 'Frontend Performance',
+        slug: 'frontend-react',
+        name: 'Frontend React',
         description: 'React experiments',
-        status: TrackStatus.COMING_SOON,
+        status: TrackStatus.ACTIVE,
         displayOrder: 3,
       },
     ],

@@ -31,17 +31,22 @@ export class AdminLabFlowMapper {
       labSlug,
       learningGoal: entity.learningGoal,
       theory: entity.theory,
-      recommendedQuery: {
-        ...entity.recommendedQuery,
-        exampleParameters: [...entity.recommendedQuery.exampleParameters],
-        paramHints: [...entity.recommendedQuery.paramHints],
-      },
+      recommendedQuery: entity.recommendedQuery
+        ? {
+            ...entity.recommendedQuery,
+            exampleParameters: [...entity.recommendedQuery.exampleParameters],
+            paramHints: [...entity.recommendedQuery.paramHints],
+          }
+        : null,
       recommendedCreateIndexSql: entity.recommendedCreateIndexSql,
       recommendedDropIndexSql: entity.recommendedDropIndexSql,
-      dataset: {
-        ...entity.dataset,
-        recommendedTier: [...entity.dataset.recommendedTier],
-      },
+      dataset: entity.dataset
+        ? {
+            ...entity.dataset,
+            recommendedTier: [...entity.dataset.recommendedTier],
+          }
+        : null,
+      config: entity.config ?? null,
       quizRequired: entity.quizRequired,
       optionalBenchmarkNote: entity.optionalBenchmarkNote,
       createdAt: entity.createdAt.toISOString(),
