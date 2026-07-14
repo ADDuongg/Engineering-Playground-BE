@@ -7,7 +7,6 @@ metadata:
   source: "templates/commands/plan.md"
 ---
 
-
 ## User Input
 
 ```text
@@ -19,6 +18,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 ## Pre-Execution Checks
 
 **Check for extension hooks (before planning)**:
+
 - Check if `.specify/extensions.yml` exists in the project root.
 - If it exists, read it and look for entries under the `hooks.before_plan` key
 - If the YAML cannot be parsed or is invalid, skip hook checking silently and continue normally
@@ -29,6 +29,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 - When constructing slash commands from hook command names, replace dots (`.`) with hyphens (`-`). For example, `speckit.git.commit` → `/speckit-git-commit`.
 - For each executable hook, output the following based on its `optional` flag:
   - **Optional hook** (`optional: true`):
+
     ```
     ## Extension Hooks
 
@@ -39,7 +40,9 @@ You **MUST** consider the user input before proceeding (if not empty).
     Prompt: {prompt}
     To execute: `/{command}`
     ```
+
   - **Mandatory hook** (`optional: false`):
+
     ```
     ## Extension Hooks
 
@@ -49,7 +52,9 @@ You **MUST** consider the user input before proceeding (if not empty).
 
     Wait for the result of the hook command before proceeding to the Outline.
     ```
+
     After emitting the block above you MUST actually invoke the hook and wait for it to finish before continuing. Run it the same way you would run the command yourself in this agent/session (the invocation may differ from the literal `{command}` id shown above, e.g. a skills-mode agent runs it as `/skill:speckit-...` or `$speckit-...`). Emitting the block alone does not run the hook.
+
 - If no hooks are registered or `.specify/extensions.yml` does not exist, skip silently
 
 ## Outline
@@ -64,7 +69,6 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Evaluate gates (ERROR if violations unjustified)
    - Phase 0: Generate research.md (resolve all NEEDS CLARIFICATION)
    - Phase 1: Generate data-model.md, contracts/, quickstart.md
-   - Phase 1: Update agent context by running the agent script
    - Re-evaluate Constitution Check post-design
 
 ## Mandatory Post-Execution Hooks
@@ -72,6 +76,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 **You MUST complete this section before reporting completion to the user.**
 
 Check if `.specify/extensions.yml` exists in the project root.
+
 - If it does not exist, or no hooks are registered under `hooks.after_plan`, skip to the Completion Report.
 - If it exists, read it and look for entries under the `hooks.after_plan` key.
 - If the YAML cannot be parsed or is invalid, skip hook checking silently and continue to the Completion Report.
@@ -82,6 +87,7 @@ Check if `.specify/extensions.yml` exists in the project root.
 - When constructing slash commands from hook command names, replace dots (`.`) with hyphens (`-`). For example, `speckit.git.commit` → `/speckit-git-commit`.
 - For each executable hook, output the following based on its `optional` flag:
   - **Mandatory hook** (`optional: false`) — **You MUST emit `EXECUTE_COMMAND:` for each mandatory hook**:
+
     ```
     ## Extension Hooks
 
@@ -89,8 +95,11 @@ Check if `.specify/extensions.yml` exists in the project root.
     Executing: `/{command}`
     EXECUTE_COMMAND: {command}
     ```
+
     After emitting the block above you MUST actually invoke the hook and wait for it to finish before continuing. Run it the same way you would run the command yourself in this agent/session (the invocation may differ from the literal `{command}` id shown above, e.g. a skills-mode agent runs it as `/skill:speckit-...` or `$speckit-...`). Emitting the block alone does not run the hook.
+
   - **Optional hook** (`optional: true`):
+
     ```
     ## Extension Hooks
 
@@ -104,7 +113,7 @@ Check if `.specify/extensions.yml` exists in the project root.
 
 ## Completion Report
 
-Command ends after Phase 2 planning. Report branch, IMPL_PLAN path, and generated artifacts.
+Command ends after Phase 1 design. Report branch, IMPL_PLAN path, and generated artifacts.
 
 ## Phases
 
@@ -141,10 +150,29 @@ Command ends after Phase 2 planning. Report branch, IMPL_PLAN path, and generate
    - State transitions if applicable
 
 2. **Define interface contracts** (if project has external interfaces) → `/contracts/`:
+
+   `/contracts/` is the **client/FE integration contract**. Frontend (and other API consumers) implement against these files — not against backend source or Swagger alone.
    - Identify what interfaces the project exposes to users or other systems
    - Document the contract format appropriate for the project type
    - Examples: public APIs for libraries, command schemas for CLI tools, endpoints for web services, grammars for parsers, UI contracts for applications
-   - Skip if project is purely internal (build scripts, one-off tools, etc.)
+   - Skip **only** if the feature is purely internal (build scripts, one-off tools, migrations with no client API, etc.)
+
+   **REQUIRED when the feature exposes HTTP/API surfaces to FE or external clients** (typical NestJS/web features — do **not** skip):
+   1. **API contract** — OpenAPI/Swagger YAML (or equivalent) under `contracts/` covering:
+      - All public paths, methods, auth requirements
+      - Request/response bodies, query/path/cookie params
+      - Error status codes and envelope shape clients must handle
+      - Auth transport details (e.g. Bearer access token, HTTP-only refresh cookie)
+
+   2. **Typed client interfaces** — MUST also declare TypeScript interfaces (or types) for FE consumption in `contracts/`:
+      - Preferred files: `contracts/types.ts` and/or `contracts/interfaces.ts` (or `contracts/<feature>.types.ts`)
+      - MUST include: request DTOs, response DTOs, error envelope types, auth/session payload types, enum/union literals used by the API
+      - MUST stay aligned with the OpenAPI schemas (same field names, optionality, and enums)
+      - MUST be **implementation-agnostic**: no NestJS/TypeORM imports, no server-only types
+      - MAY include a thin client service interface (e.g. `AuthApiClient`) describing methods FE should call — method signatures only, no implementation
+      - Do **not** put internal BE-only abstractions here (repositories, domain services, guards)
+
+   **Validation gate**: If the feature has any FE-callable endpoint and `contracts/` lacks typed interfaces, Phase 1 is incomplete — create them before finishing `/speckit-plan`.
 
 3. **Create quickstart validation guide** → `quickstart.md`:
    - Document runnable validation scenarios that prove the feature works end-to-end
@@ -153,7 +181,7 @@ Command ends after Phase 2 planning. Report branch, IMPL_PLAN path, and generate
    - Do not include full implementation code, model/service/controller bodies, migrations, or complete test suites
    - Keep this artifact as a validation/run guide; implementation details belong in `tasks.md` and the implementation phase
 
-**Output**: data-model.md, /contracts/*, quickstart.md
+**Output**: data-model.md, /contracts/\* (API contract + FE TypeScript interfaces when applicable), quickstart.md
 
 ## Key rules
 
@@ -163,5 +191,6 @@ Command ends after Phase 2 planning. Report branch, IMPL_PLAN path, and generate
 ## Done When
 
 - [ ] Plan workflow executed and design artifacts generated
+- [ ] If the feature exposes FE/client APIs: `contracts/` includes both an API contract (e.g. OpenAPI) **and** TypeScript interfaces/types for FE implementation
 - [ ] Extension hooks dispatched or skipped according to the rules in Mandatory Post-Execution Hooks above
-- [ ] Completion reported to user with branch, plan path, and generated artifacts
+- [ ] Completion reported to user with branch, plan path, and generated artifacts (explicitly list contract files including typed interfaces)
